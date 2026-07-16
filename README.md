@@ -1,8 +1,8 @@
-# Snackbaron POS v2.3
+# Snackbaron POS v2.4
 
 Nieuw:
-- Grote knop **Nieuwe klant**
-- Waarschuwing als een onbetaalde bestelling nog openstaat
-- Lopende aanpassing kan veilig worden geannuleerd
-- Volgend bestelnummer zichtbaar in het kassascherm
-- Bancontact blijft verwijderd
+- Productfoto toegevoegd aan de knop Jupiler
+- Alleen de Jupiler-knop gebruikt voorlopig een foto
+- Basis voorbereid om later foto's aan andere producten toe te voegen
+
+Upload alle bestanden en mappen naar GitHub, inclusief de map `images`.
