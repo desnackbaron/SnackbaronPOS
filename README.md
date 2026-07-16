@@ -1,9 +1,8 @@
-# Snackbaron POS v2.1
+# Snackbaron POS v2.3
 
 Nieuw:
-- Duidelijk cashscherm met numeriek toetsenbord
-- Grote, zichtbare wisselgeldberekening
-- Snelknoppen voor gepast bedrag, €5/€10 afronding, €20 en €50
-- Bestelling in wacht zetten
-- Wachtende bestelling later hervatten
-- Bestellingen aanpassen en verwijderen
+- Grote knop **Nieuwe klant**
+- Waarschuwing als een onbetaalde bestelling nog openstaat
+- Lopende aanpassing kan veilig worden geannuleerd
+- Volgend bestelnummer zichtbaar in het kassascherm
+- Bancontact blijft verwijderd

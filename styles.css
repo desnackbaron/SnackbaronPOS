@@ -95,3 +95,14 @@ body.rush .product{min-height:125px}
 @media(max-width:1100px){
   .top-actions{gap:5px}.top-actions .soft{padding:10px 9px;font-size:14px}
 }
+
+.new-customer{
+  border:0;border-radius:12px;padding:11px 15px;font-weight:900;
+  background:#1f7a4d;color:#fff;box-shadow:0 2px 7px rgba(0,0,0,.12)
+}
+.new-customer:active{transform:scale(.98)}
+#nextOrderBadge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:42px;height:28px;padding:0 8px;border-radius:999px;
+  background:#ead5bd;color:var(--brown);font-size:15px;vertical-align:middle
+}

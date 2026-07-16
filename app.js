@@ -66,7 +66,8 @@ function renderCart(){
       <strong>${euro(r.total)}</strong>
     </div>`).join(""):`<div class="empty">Tik op een product om te starten.</div>`;
   document.getElementById("cartTotal").textContent=euro(cartTotal());
-  document.getElementById("cartTitle").textContent=editingSaleId?"Bestelling aanpassen":"Nieuwe bestelling";
+  document.getElementById("cartTitle").firstChild.textContent=editingSaleId?"Bestelling aanpassen ":"Nieuwe bestelling ";
+  document.getElementById("nextOrderBadge").textContent=editingSaleId?"#"+(getSales().find(s=>s.id===editingSaleId)?.orderNo||"?"):"#"+nextOrderNo();
   document.getElementById("editHint").textContent=editingSaleId?"Wijzig producten en kies opnieuw de betaalmethode.":"";
 }
 function startPayment(type){
@@ -131,6 +132,23 @@ function confirmCash(){
   const change=received-cartTotal();
   document.getElementById("cashDialog").close();
   saveCurrentSale("Cash",received,change);
+}
+
+function newCustomer(){
+  if(editingSaleId){
+    if(!confirm("Je past momenteel een eerdere bestelling aan. Aanpassing annuleren en een nieuwe klant starten?")) return;
+    editingSaleId=null;
+    cart={};
+    renderCart();
+    toast("Nieuwe klant gestart.");
+    return;
+  }
+  if(cartRows().length){
+    if(!confirm("Deze bestelling is nog niet betaald. Wissen en een nieuwe klant starten?")) return;
+  }
+  cart={};
+  renderCart();
+  toast("Nieuwe klant gestart.");
 }
 function holdCurrentOrder(){
   const rows=cartRows();
@@ -251,6 +269,7 @@ function exportCSV(){
 }
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000)}
 
+document.getElementById("newCustomerBtn").onclick=newCustomer;
 document.getElementById("holdBtn").onclick=holdCurrentOrder;
 document.getElementById("heldBtn").onclick=openHeld;
 document.getElementById("heldCloseBtn").onclick=()=>document.getElementById("heldDialog").close();
