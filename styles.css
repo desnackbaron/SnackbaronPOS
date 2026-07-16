@@ -279,3 +279,54 @@ th:last-child,td:last-child{text-align:right}
 @media(max-width:800px){
   .cockpit-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+.connection-status{
+  display:flex;
+  align-items:center;
+  border-radius:999px;
+  padding:8px 11px;
+  font-size:13px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.connection-status.online{
+  color:#17683f;
+  background:#dff5e9;
+  border:1px solid #8dd2ab;
+}
+.connection-status.offline{
+  color:#8a3f00;
+  background:#fff0d6;
+  border:1px solid #e4b36e;
+}
+
+.order-finance{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+.order-finance>div{
+  background:#fff1dc;
+  border:1px solid var(--line);
+  border-radius:11px;
+  padding:9px 10px;
+}
+.order-finance span{
+  display:block;
+  color:#725b49;
+  font-size:12px;
+}
+.order-finance strong{
+  display:block;
+  margin-top:3px;
+  font-size:18px;
+}
+.finance-warning{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:11px;
+  background:#fff0d6;
+  border:1px solid #e4b36e;
+  color:#7a4200;
+}

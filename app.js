@@ -1,5 +1,6 @@
 
 const PRODUCTS=[{"id": "pulled-pork", "name": "Pulled Pork", "price": 10.0, "cat": "Specials"}, {"id": "smokey-chicken", "name": "Smokey Chicken", "price": 10.0, "cat": "Specials"}, {"id": "chicken-tandoori", "name": "Chicken Tandoori", "price": 10.0, "cat": "Specials"}, {"id": "hamburger", "name": "Hamburger", "price": 5.5, "cat": "Burgers"}, {"id": "cheeseburger", "name": "Cheeseburger", "price": 6.0, "cat": "Burgers"}, {"id": "cheeseburger-royale", "name": "Cheeseburger Royale", "price": 8.0, "cat": "Burgers"}, {"id": "spekburger", "name": "Spekburger", "price": 6.5, "cat": "Burgers"}, {"id": "broodje-curryworst", "name": "Broodje Curryworst", "price": 5.5, "cat": "Broodjes"}, {"id": "curryworst", "name": "Curryworst", "price": 2.5, "cat": "Snacks"}, {"id": "broodje-mexicano", "name": "Broodje Mexicano", "price": 7.5, "cat": "Broodjes"}, {"id": "broodje-mexicano-cheese", "name": "Mexicano Cheese", "price": 8.0, "cat": "Broodjes"}, {"id": "bicky-burger", "name": "Bicky Burger", "price": 5.5, "cat": "Burgers"}, {"id": "bicky-cheese", "name": "Bicky Cheese", "price": 6.0, "cat": "Burgers"}, {"id": "broodje-braadworst", "name": "Broodje Braadworst", "price": 8.0, "cat": "Broodjes"}, {"id": "braadworst", "name": "Braadworst", "price": 4.5, "cat": "Snacks"}, {"id": "extra-kaas", "name": "Extra kaas", "price": 0.5, "cat": "Extra's"}, {"id": "dubbel-spek", "name": "Dubbel spek", "price": 1.0, "cat": "Extra's"}, {"id": "plat-water", "name": "Plat water", "price": 2.2, "cat": "Dranken", "image": "images/plat-water.png"}, {"id": "bruis-water", "name": "Bruis water", "price": 2.5, "cat": "Dranken", "image": "images/bruis-water.png"}, {"id": "cola", "name": "Cola", "price": 2.5, "cat": "Dranken", "image": "images/cola.png"}, {"id": "cola-zero", "name": "Cola Zero", "price": 2.5, "cat": "Dranken", "image": "images/cola-zero.png"}, {"id": "dr-pepper", "name": "Dr Pepper", "price": 2.5, "cat": "Dranken", "image": "images/dr-pepper.png"}, {"id": "fanta", "name": "Fanta", "price": 2.5, "cat": "Dranken", "image": "images/fanta.png"}, {"id": "sprite", "name": "Sprite", "price": 2.5, "cat": "Dranken", "image": "images/sprite.png"}, {"id": "jupiler", "name": "Jupiler", "price": 2.5, "cat": "Dranken", "image": "images/jupiler.png"},{"id": "jupiler-00", "name": "Jupiler 0.0", "price": 2.5, "cat": "Dranken", "image": "images/jupiler-00.png"}, {"id": "ice-tea", "name": "Ice Tea", "price": 2.5, "cat": "Dranken", "image": "images/ice-tea.png"}, {"id": "ice-tea-peach", "name": "Ice Tea Peach", "price": 2.5, "cat": "Dranken", "image": "images/ice-tea-peach.png"}, {"id": "red-bull", "name": "Red Bull", "price": 3.2, "cat": "Dranken", "image": "images/red-bull.png"}, {"id": "monster", "name": "Monster", "price": 3.5, "cat": "Dranken", "image": "images/monster.png"}];
+const COSTS={"hamburger": 1.456, "cheeseburger": 1.406, "cheeseburger-royale": 2.147, "spekburger": 1.77, "bicky-burger": 1.547, "bicky-cheese": 1.7, "broodje-mexicano": 2.276, "broodje-mexicano-cheese": 2.476, "broodje-braadworst": 2.567, "braadworst": 1.478, "pulled-pork": 3.415, "smokey-chicken": 3.289, "chicken-tandoori": 3.37, "broodje-curryworst": 1.519, "curryworst": 0.53, "extra-kaas": 0.2, "plat-water": 0.442, "bruis-water": 0.547, "cola": 0.915, "cola-zero": 0.952, "fanta": 0.951, "sprite": 0.664, "jupiler": 1.08, "jupiler-00": 0.88, "red-bull": 1.367, "ice-tea": 0.68, "ice-tea-peach": 0.837, "dr-pepper": 0.863};
 const KEY="snackbaron_pos_v2";
 const HELD_KEY="snackbaron_pos_held_v1";
 let cart={};
@@ -46,6 +47,27 @@ function cartRows(){
   });
 }
 function cartTotal(){return cartRows().reduce((s,r)=>s+r.total,0)}
+function itemCost(item){
+  return Object.prototype.hasOwnProperty.call(COSTS,item.id) ? COSTS[item.id] : null;
+}
+function rowsFoodcost(rows){
+  return rows.reduce((sum,item)=>{
+    const cost=itemCost(item);
+    return sum+(cost===null?0:cost*item.qty);
+  },0);
+}
+function rowsUnknownCostIds(rows){
+  return [...new Set(rows.filter(item=>itemCost(item)===null).map(item=>item.id))];
+}
+function rowsGrossProfit(rows){
+  return rows.reduce((sum,item)=>{
+    const cost=itemCost(item);
+    return sum+(cost===null?0:(item.price-cost)*item.qty);
+  },0);
+}
+function saleFoodcost(sale){return rowsFoodcost(sale.items||[])}
+function saleGrossProfit(sale){return rowsGrossProfit(sale.items||[])}
+
 function renderCart(){
   const rows=cartRows();
   document.getElementById("cartItems").innerHTML=rows.length?rows.map(r=>`
@@ -61,6 +83,8 @@ function renderCart(){
       <strong>${euro(r.total)}</strong>
     </div>`).join(""):`<div class="empty">Tik op een product om te starten.</div>`;
   document.getElementById("cartTotal").textContent=euro(cartTotal());
+  document.getElementById("cartFoodcost").textContent=euro(rowsFoodcost(rows));
+  document.getElementById("cartGrossProfit").textContent=euro(rowsGrossProfit(rows));
   document.getElementById("cartTitle").firstChild.textContent=editingSaleId?"Bestelling aanpassen ":"Nieuwe bestelling ";
   document.getElementById("nextOrderBadge").textContent=editingSaleId?"#"+(getSales().find(s=>s.id===editingSaleId)?.orderNo||"?"):"#"+nextOrderNo();
   document.getElementById("editHint").textContent=editingSaleId?"Wijzig producten en kies opnieuw de betaalmethode.":"";
@@ -226,7 +250,7 @@ function renderOrders(){
       <div>
         <h3>Bestelling #${s.orderNo}</h3>
         ${s.items.map(i=>`<p>${i.qty} × ${i.name}</p>`).join("")}
-        <div class="order-meta">${new Date(s.timestamp).toLocaleTimeString("nl-BE",{hour:"2-digit",minute:"2-digit"})} · ${s.payment}${s.edited?" · aangepast":""}</div>
+        <div class="order-meta">${new Date(s.timestamp).toLocaleTimeString("nl-BE",{hour:"2-digit",minute:"2-digit"})} · ${s.payment}${s.edited?" · aangepast":""}</div><div class="order-meta">Foodcost ${euro(saleFoodcost(s))} · Brutowinst ${euro(saleGrossProfit(s))}</div>
       </div>
       <div class="order-actions">
         <strong>${euro(s.total)}</strong>
@@ -244,6 +268,8 @@ function openCockpit(){
   const sales=todaySales();
   const turnover=sales.reduce((sum,s)=>sum+s.total,0);
   const avg=sales.length?turnover/sales.length:0;
+  const totalFoodcost=sales.reduce((sum,s)=>sum+saleFoodcost(s),0);
+  const totalGrossProfit=sales.reduce((sum,s)=>sum+saleGrossProfit(s),0);
   const productStats={};
   const paymentStats={};
 
@@ -280,7 +306,7 @@ function openCockpit(){
     <div class="cockpit-grid">
       <div class="cockpit-card"><span>Omzet vandaag</span><strong>${euro(turnover)}</strong></div>
       <div class="cockpit-card"><span>Klanten</span><strong>${sales.length}</strong></div>
-      <div class="cockpit-card"><span>Gemiddeld ticket</span><strong>${euro(avg)}</strong></div>
+      <div class="cockpit-card"><span>Gemiddeld ticket</span><strong>${euro(avg)}</strong></div><div class="cockpit-card"><span>Foodcost vandaag</span><strong>${euro(totalFoodcost)}</strong></div><div class="cockpit-card"><span>Brutowinst vandaag</span><strong>${euro(totalGrossProfit)}</strong></div>
       <div class="cockpit-card"><span>Drank aandeel</span><strong>${drinkRatio.toFixed(0)}%</strong></div>
       <div class="cockpit-card"><span>Drukste uur</span><strong>${busiest?String(busiest[0]).padStart(2,"0")+":00":"—"}</strong></div>
       <div class="cockpit-card"><span>Wachtende bestellingen</span><strong>${getHeld().length}</strong></div>
@@ -365,17 +391,21 @@ function openSummary(){
   sales.forEach(s=>{payments[s.payment]=(payments[s.payment]||0)+s.total;s.items.forEach(i=>{if(!products[i.name])products[i.name]={qty:0,total:0};products[i.name].qty+=i.qty;products[i.name].total+=i.total;})});
   const avg=sales.length?turnover/sales.length:0;
   const units=Object.values(products).reduce((s,x)=>s+x.qty,0);
+  const totalFoodcost=sales.reduce((sum,s)=>sum+saleFoodcost(s),0);
+  const totalGrossProfit=sales.reduce((sum,s)=>sum+saleGrossProfit(s),0);
+  const unknownIds=[...new Set(sales.flatMap(s=>rowsUnknownCostIds(s.items||[])))];
   document.getElementById("summaryBody").innerHTML=`
     <div class="cards">
       <div class="cardbox"><span>Omzet</span><strong>${euro(turnover)}</strong></div>
       <div class="cardbox"><span>Bestellingen</span><strong>${sales.length}</strong></div>
       <div class="cardbox"><span>Gemiddeld ticket</span><strong>${euro(avg)}</strong></div>
-      <div class="cardbox"><span>Verkochte stuks</span><strong>${units}</strong></div>
+      <div class="cardbox"><span>Verkochte stuks</span><strong>${units}</strong></div><div class="cardbox"><span>Foodcost</span><strong>${euro(totalFoodcost)}</strong></div><div class="cardbox"><span>Brutowinst</span><strong>${euro(totalGrossProfit)}</strong></div>
     </div>
     <h3>Betaalmethodes</h3>
     <table><tbody>${Object.entries(payments).map(([n,v])=>`<tr><td>${n}</td><td>${euro(v)}</td></tr>`).join("")||"<tr><td>Nog geen verkopen</td><td>€ 0,00</td></tr>"}</tbody></table>
     <h3>Producten</h3>
-    <table><thead><tr><th>Product</th><th>Aantal</th><th>Omzet</th></tr></thead><tbody>${Object.entries(products).sort((a,b)=>b[1].qty-a[1].qty).map(([n,v])=>`<tr><td>${n}</td><td>${v.qty}</td><td>${euro(v.total)}</td></tr>`).join("")||"<tr><td>Nog geen verkopen</td><td>0</td><td>€ 0,00</td></tr>"}</tbody></table>`;
+    <table><thead><tr><th>Product</th><th>Aantal</th><th>Omzet</th></tr></thead><tbody>${Object.entries(products).sort((a,b)=>b[1].qty-a[1].qty).map(([n,v])=>`<tr><td>${n}</td><td>${v.qty}</td><td>${euro(v.total)}</td></tr>`).join("")||"<tr><td>Nog geen verkopen</td><td>0</td><td>€ 0,00</td></tr>"}</tbody></table>
+    ${unknownIds.length?`<div class="finance-warning">Geen kostprijs ingesteld voor: ${unknownIds.map(id=>PRODUCTS.find(p=>p.id===id)?.name||id).join(", ")}. Deze producten tellen nog niet mee in foodcost en brutowinst.</div>`:""}`;
   document.getElementById("summaryDialog").showModal();
 }
 function exportCSV(){
@@ -387,6 +417,86 @@ function exportCSV(){
 function updateCustomerCounter(){
  document.getElementById("customerNo").textContent=String(todaySales().length+1);
 }
+
+function updateConnectionStatus(){
+  const el=document.getElementById("connectionStatus");
+  if(!el)return;
+  const online=navigator.onLine;
+  el.textContent=online?"● Online":"● Offline";
+  el.classList.toggle("online",online);
+  el.classList.toggle("offline",!online);
+}
+window.addEventListener("online",()=>{
+  updateConnectionStatus();
+  toast("Internetverbinding hersteld.");
+});
+window.addEventListener("offline",()=>{
+  updateConnectionStatus();
+  toast("Offline modus actief. Verkopen blijven bewaard.");
+});
+
+
+function exportSnackbaronPRO(){
+  const sales=todaySales();
+  if(!sales.length)return toast("Nog geen verkopen om te exporteren.");
+
+  const counts={};
+  sales.forEach(s=>(s.items||[]).forEach(i=>counts[i.id]=(counts[i.id]||0)+i.qty));
+
+  const total=sales.reduce((sum,s)=>sum+s.total,0);
+  const foodcost=sales.reduce((sum,s)=>sum+saleFoodcost(s),0);
+  const gross=sales.reduce((sum,s)=>sum+saleGrossProfit(s),0);
+  const cash=sales.filter(s=>s.payment==="Cash").reduce((sum,s)=>sum+s.total,0);
+  const payconiq=sales.filter(s=>s.payment==="Payconiq").reduce((sum,s)=>sum+s.total,0);
+
+  const header=[
+    "Datum","Dag","Week","Maand","Standplaats","Weer","Personeel","Klanten",
+    "Hamburger","Angus Beefburger","Kip Burger XL","Cheeseburger","Cheeseburger Royale",
+    "Spekburger","Bicky","Bicky Cheese","Mexicano","Mexicano Cheese","Broodje Braadworst",
+    "Losse Braadworst","Pulled Pork","Smokey Chicken","Chicken Tandoori","BR.Curry worst",
+    "Losse Curry Worst","Extra Kaas ","Water","Bruis","Cola","Cola Zero","Fanta","Sprite",
+    "Jupiler","Jupiler 0,0","Red Bull","Ice Tea","Peach","Dr Pepper",
+    "Food stuks","Drank stuks","Totaal stuks","Theoretische omzet","Theoretische kost",
+    "Brutowinst","Cash","Payconiq","Werkelijke omzet","Verschil","Gas/Diesel","Standgeld",
+    "Overige kosten","Netto dagresultaat","Opmerking","Aantal Lepinja's","Aantal buns","Aantal Bicky broodjes"
+  ];
+
+  const foodIds=PRODUCTS.filter(p=>p.cat!=="Dranken").map(p=>p.id);
+  const drinkIds=PRODUCTS.filter(p=>p.cat==="Dranken").map(p=>p.id);
+  const foodUnits=foodIds.reduce((s,id)=>s+(counts[id]||0),0);
+  const drinkUnits=drinkIds.reduce((s,id)=>s+(counts[id]||0),0);
+  const d=new Date();
+  const weekNo=(()=>{
+    const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+    const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);
+    const y=new Date(Date.UTC(x.getUTCFullYear(),0,1));
+    return Math.ceil((((x-y)/86400000)+1)/7);
+  })();
+
+  const row=[
+    dateKey(),d.toLocaleDateString("nl-BE",{weekday:"short"}),weekNo,
+    d.toLocaleDateString("nl-BE",{month:"long"}),"","","Alleen",sales.length,
+    counts["hamburger"]||0,0,0,counts["cheeseburger"]||0,counts["cheeseburger-royale"]||0,
+    counts["spekburger"]||0,counts["bicky-burger"]||0,counts["bicky-cheese"]||0,
+    counts["broodje-mexicano"]||0,counts["broodje-mexicano-cheese"]||0,
+    counts["broodje-braadworst"]||0,counts["braadworst"]||0,counts["pulled-pork"]||0,
+    counts["smokey-chicken"]||0,counts["chicken-tandoori"]||0,
+    counts["broodje-curryworst"]||0,counts["curryworst"]||0,counts["extra-kaas"]||0,
+    counts["plat-water"]||0,counts["bruis-water"]||0,counts["cola"]||0,
+    counts["cola-zero"]||0,counts["fanta"]||0,counts["sprite"]||0,counts["jupiler"]||0,
+    counts["jupiler-00"]||0,counts["red-bull"]||0,counts["ice-tea"]||0,
+    counts["ice-tea-peach"]||0,counts["dr-pepper"]||0,
+    foodUnits,drinkUnits,foodUnits+drinkUnits,total,foodcost,gross,cash,payconiq,
+    cash+payconiq,(cash+payconiq)-total,"","","",gross,"Export Snackbaron POS","","",""
+  ];
+
+  const csv="\ufeff"+[header,row].map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(";")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download=`Snackbaron_PRO_import_${dateKey()}.csv`;
+  a.click();
+}
+
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000)}
 
 document.getElementById("newCustomerBtn").onclick=newCustomer;
@@ -405,9 +515,17 @@ document.getElementById("cashCloseBtn").onclick=()=>document.getElementById("cas
 document.querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>cashKey(b.dataset.key));
 document.getElementById("cashConfirmBtn").onclick=confirmCash;
 document.getElementById("csvBtn").onclick=exportCSV;
+document.getElementById("proExportBtn").onclick=exportSnackbaronPRO;
 document.getElementById("resetBtn").onclick=()=>{if(confirm("Alle bestellingen van vandaag verwijderen? Exporteer eerst je CSV.")){saveSales(getSales().filter(s=>s.date!==dateKey()));cart={};editingSaleId=null;renderCart();openSummary();updateCustomerCounter();toast("Nieuwe dag gestart.");}};
 document.getElementById("clearBtn").onclick=()=>{if(cartRows().length&&confirm(editingSaleId?"Aanpassing annuleren?":"Bestelling wissen?")){cart={};editingSaleId=null;renderCart();}};
 document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>startPayment(b.dataset.pay));
 
 renderTabs();renderProducts();renderCart();updateCustomerCounter();updateHeldCount();
-if("serviceWorker" in navigator)navigator.serviceWorker.register("service-worker.js").catch(()=>{});
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("service-worker.js").then(reg=>{
+      reg.update().catch(()=>{});
+    }).catch(()=>{});
+  });
+}
+updateConnectionStatus();

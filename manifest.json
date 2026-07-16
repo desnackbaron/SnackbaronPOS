@@ -1,7 +1,7 @@
 {
   "name": "Snackbaron POS",
   "short_name": "Snackbaron",
-  "start_url": "./",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f1e4d2",
   "theme_color": "#6a2600",
@@ -12,5 +12,8 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "./",
+  "orientation": "landscape",
+  "description": "Offline kassasysteem voor De Snackbaron"
 }

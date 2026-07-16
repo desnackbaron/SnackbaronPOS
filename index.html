@@ -14,7 +14,7 @@
 <body>
 <header>
   <img src="logo.png" alt="De Snackbaron" class="logo">
-  <div class="customer-counter">👤 Klant <strong id="customerNo">1</strong></div><div class="top-actions">
+  <div id="connectionStatus" class="connection-status online">● Online</div><div class="customer-counter">👤 Klant <strong id="customerNo">1</strong></div><div class="top-actions">
     <button id="newCustomerBtn" class="new-customer">🟢 Nieuwe klant</button>
     <button id="holdBtn" class="soft">⏸ In wacht</button>
     <button id="heldBtn" class="soft">Wachtend <span id="heldCount">0</span></button>
@@ -42,6 +42,10 @@
 
     <div id="cartItems" class="cart-items"></div>
 
+    <div class="order-finance">
+      <div><span>Foodcost</span><strong id="cartFoodcost">€ 0,00</strong></div>
+      <div><span>Brutowinst</span><strong id="cartGrossProfit">€ 0,00</strong></div>
+    </div>
     <div class="cart-total">
       <span>Totaal</span>
       <strong id="cartTotal">€ 0,00</strong>
@@ -119,7 +123,8 @@
   </div>
   <div id="summaryBody" class="dialog-body"></div>
   <div class="dialog-actions">
-    <button id="csvBtn" class="soft">CSV exporteren</button>
+    <button id="csvBtn" class="soft">Detail CSV</button>
+    <button id="proExportBtn" class="soft">Export Snackbaron PRO</button>
     <button id="resetBtn" class="danger">Nieuwe dag starten</button>
   </div>
 </dialog>
