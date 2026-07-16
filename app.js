@@ -244,6 +244,61 @@ function renderOrders(){
     </div>`).join(""):`<div class="empty">Nog geen bestellingen vandaag.</div>`;
 }
 function openOrders(){renderOrders();document.getElementById("ordersDialog").showModal();}
+
+function openTraffic(){
+  const sales=todaySales();
+  const hours={};
+
+  sales.forEach(s=>{
+    const d=new Date(s.timestamp);
+    const hour=d.getHours();
+    hours[hour]=(hours[hour]||0)+1;
+  });
+
+  const startHour=sales.length?Math.min(...sales.map(s=>new Date(s.timestamp).getHours())):10;
+  const endHour=sales.length?Math.max(...sales.map(s=>new Date(s.timestamp).getHours())):18;
+  const maxCount=Math.max(1,...Object.values(hours));
+  const busiestEntry=Object.entries(hours).sort((a,b)=>b[1]-a[1])[0];
+  const quietEntries=Object.entries(hours).sort((a,b)=>a[1]-b[1]);
+  const quietestEntry=quietEntries[0];
+  const avg=sales.length? sales.length / Math.max(1,(endHour-startHour+1)) : 0;
+
+  let rows="";
+  for(let h=startHour;h<=endHour;h++){
+    const count=hours[h]||0;
+    const width=(count/maxCount)*100;
+    rows+=`
+      <div class="traffic-row">
+        <div class="traffic-hour">${String(h).padStart(2,"0")}:00</div>
+        <div class="traffic-bar-wrap">
+          <div class="traffic-bar" style="width:${width}%"></div>
+        </div>
+        <div class="traffic-count">${count} klant${count===1?"":"en"}</div>
+      </div>`;
+  }
+
+  const busiestText=busiestEntry
+    ? `${String(busiestEntry[0]).padStart(2,"0")}:00 · ${busiestEntry[1]} klanten`
+    : "Nog geen gegevens";
+
+  const quietestText=quietestEntry
+    ? `${String(quietestEntry[0]).padStart(2,"0")}:00 · ${quietestEntry[1]} klanten`
+    : "Nog geen gegevens";
+
+  document.getElementById("trafficBody").innerHTML=`
+    <div class="traffic-summary">
+      <div class="traffic-card"><span>Drukste uur</span><strong>${busiestText}</strong></div>
+      <div class="traffic-card"><span>Kalmste uur</span><strong>${quietestText}</strong></div>
+      <div class="traffic-card"><span>Gemiddeld per uur</span><strong>${avg.toFixed(1).replace(".",",")}</strong></div>
+    </div>
+    ${rows || '<div class="empty">Nog geen verkopen vandaag.</div>'}
+    <div class="traffic-note">
+      Gebruik dit overzicht na enkele verkoopdagen om rustige momenten te herkennen.
+      Uren zonder verkoop blijven zichtbaar met 0 klanten.
+    </div>`;
+  document.getElementById("trafficDialog").showModal();
+}
+
 function openSummary(){
   const sales=todaySales(),turnover=sales.reduce((s,x)=>s+x.total,0),payments={},products={};
   sales.forEach(s=>{payments[s.payment]=(payments[s.payment]||0)+s.total;s.items.forEach(i=>{if(!products[i.name])products[i.name]={qty:0,total:0};products[i.name].qty+=i.qty;products[i.name].total+=i.total;})});
@@ -279,6 +334,8 @@ document.getElementById("heldBtn").onclick=openHeld;
 document.getElementById("heldCloseBtn").onclick=()=>document.getElementById("heldDialog").close();
 document.getElementById("rushBtn").onclick=()=>{rushMode=!rushMode;document.body.classList.toggle("rush",rushMode);document.getElementById("rushBtn").textContent=rushMode?"Normale modus":"🔥 Druktemodus";activeCategory="Alles";renderTabs();renderProducts();};
 document.getElementById("ordersBtn").onclick=openOrders;
+document.getElementById("trafficBtn").onclick=openTraffic;
+document.getElementById("trafficCloseBtn").onclick=()=>document.getElementById("trafficDialog").close();
 document.getElementById("summaryBtn").onclick=openSummary;
 document.getElementById("ordersCloseBtn").onclick=()=>document.getElementById("ordersDialog").close();
 document.getElementById("summaryCloseBtn").onclick=()=>document.getElementById("summaryDialog").close();

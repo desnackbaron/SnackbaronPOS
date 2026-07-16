@@ -182,3 +182,64 @@ body.rush .product-image{height:88px}
  padding:10px 14px;font-weight:800
 }
 .customer-counter strong{font-size:22px;color:#b54a00}
+
+.traffic-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+.traffic-card{
+  background:#fff1dc;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:13px;
+}
+.traffic-card span{
+  display:block;
+  color:#725b49;
+  font-size:13px;
+}
+.traffic-card strong{
+  display:block;
+  font-size:23px;
+  margin-top:4px;
+}
+.traffic-row{
+  display:grid;
+  grid-template-columns:78px 1fr 88px;
+  gap:10px;
+  align-items:center;
+  margin:10px 0;
+}
+.traffic-hour{
+  font-weight:900;
+}
+.traffic-bar-wrap{
+  height:30px;
+  background:#f0dfca;
+  border-radius:999px;
+  overflow:hidden;
+}
+.traffic-bar{
+  height:100%;
+  min-width:0;
+  background:linear-gradient(90deg,var(--gold),var(--orange));
+  border-radius:999px;
+  transition:width .2s ease;
+}
+.traffic-count{
+  text-align:right;
+  font-weight:900;
+}
+.traffic-note{
+  margin-top:18px;
+  padding:12px;
+  border-radius:12px;
+  background:#fff8e8;
+  border:1px solid var(--line);
+}
+@media(max-width:800px){
+  .traffic-summary{grid-template-columns:1fr}
+  .traffic-row{grid-template-columns:68px 1fr 74px}
+}

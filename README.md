@@ -1,11 +1,10 @@
-# Snackbaron POS v3.0
+# Snackbaron POS v3.2
 
 Nieuw:
-- Alle drankknoppen met foto
-- Jupiler 0.0 toegevoegd aan het assortiment (€2,50)
-- Nieuwe categorie Favorieten
-- Drankfoto's uniform geschaald voor liggende iPad
-- Prijs als duidelijk gouden label
-- Betere offline cache voor alle productfoto's
-
-Upload alle bestanden en ook de volledige map `images`.
+- Tab **Druktemeter**
+- Aantal klanten per uur
+- Balkweergave per uur
+- Drukste uur
+- Kalmste uur
+- Gemiddeld aantal klanten per uur
+- Uren zonder verkoop blijven zichtbaar
