@@ -1,11 +1,13 @@
 
 const PRODUCTS=[{"id": "pulled-pork", "name": "Pulled Pork", "price": 10.0, "cat": "Specials"}, {"id": "smokey-chicken", "name": "Smokey Chicken", "price": 10.0, "cat": "Specials"}, {"id": "chicken-tandoori", "name": "Chicken Tandoori", "price": 10.0, "cat": "Specials"}, {"id": "hamburger", "name": "Hamburger", "price": 5.5, "cat": "Burgers"}, {"id": "cheeseburger", "name": "Cheeseburger", "price": 6.0, "cat": "Burgers"}, {"id": "cheeseburger-royale", "name": "Cheeseburger Royale", "price": 8.0, "cat": "Burgers"}, {"id": "spekburger", "name": "Spekburger", "price": 6.5, "cat": "Burgers"}, {"id": "broodje-curryworst", "name": "Broodje Curryworst", "price": 5.5, "cat": "Broodjes"}, {"id": "curryworst", "name": "Curryworst", "price": 2.5, "cat": "Snacks"}, {"id": "broodje-mexicano", "name": "Broodje Mexicano", "price": 7.5, "cat": "Broodjes"}, {"id": "broodje-mexicano-cheese", "name": "Mexicano Cheese", "price": 8.0, "cat": "Broodjes"}, {"id": "bicky-burger", "name": "Bicky Burger", "price": 5.5, "cat": "Burgers"}, {"id": "bicky-cheese", "name": "Bicky Cheese", "price": 6.0, "cat": "Burgers"}, {"id": "broodje-braadworst", "name": "Broodje Braadworst", "price": 8.0, "cat": "Broodjes"}, {"id": "braadworst", "name": "Braadworst", "price": 4.5, "cat": "Snacks"}, {"id": "extra-kaas", "name": "Extra kaas", "price": 0.5, "cat": "Extra's"}, {"id": "dubbel-spek", "name": "Dubbel spek", "price": 1.0, "cat": "Extra's"}, {"id": "plat-water", "name": "Plat water", "price": 2.2, "cat": "Dranken"}, {"id": "bruis-water", "name": "Bruis water", "price": 2.5, "cat": "Dranken"}, {"id": "cola", "name": "Cola", "price": 2.5, "cat": "Dranken"}, {"id": "cola-zero", "name": "Cola Zero", "price": 2.5, "cat": "Dranken"}, {"id": "dr-pepper", "name": "Dr Pepper", "price": 2.5, "cat": "Dranken"}, {"id": "fanta", "name": "Fanta", "price": 2.5, "cat": "Dranken"}, {"id": "sprite", "name": "Sprite", "price": 2.5, "cat": "Dranken"}, {"id": "jupiler", "name": "Jupiler", "price": 2.5, "cat": "Dranken"}, {"id": "ice-tea", "name": "Ice Tea", "price": 2.5, "cat": "Dranken"}, {"id": "ice-tea-peach", "name": "Ice Tea Peach", "price": 2.5, "cat": "Dranken"}, {"id": "red-bull", "name": "Red Bull", "price": 3.2, "cat": "Dranken"}, {"id": "monster", "name": "Monster", "price": 3.5, "cat": "Dranken"}];
 const KEY="snackbaron_pos_v2";
+const HELD_KEY="snackbaron_pos_held_v1";
 let cart={};
 let activeCategory="Alles";
 let rushMode=false;
 let editingSaleId=null;
 let pendingPayment=null;
+let cashCents="";
 
 const euro=v=>new Intl.NumberFormat("nl-BE",{style:"currency",currency:"EUR"}).format(v);
 const dateKey=()=>{
@@ -16,6 +18,10 @@ const getSales=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch{r
 const saveSales=s=>localStorage.setItem(KEY,JSON.stringify(s));
 const todaySales=()=>getSales().filter(s=>s.date===dateKey());
 const nextOrderNo=()=>todaySales().reduce((m,s)=>Math.max(m,s.orderNo||0),0)+1;
+const getHeld=()=>{try{return JSON.parse(localStorage.getItem(HELD_KEY))||[]}catch{return []}};
+const saveHeld=h=>{localStorage.setItem(HELD_KEY,JSON.stringify(h));updateHeldCount();};
+function updateHeldCount(){document.getElementById("heldCount").textContent=getHeld().length;}
+
 
 function categories(){return ["Alles",...new Set(PRODUCTS.map(p=>p.cat))]}
 function renderTabs(){
@@ -84,28 +90,102 @@ function saveCurrentSale(payment,received,change){
   }
   cart={};editingSaleId=null;pendingPayment=null;renderCart();renderOrders();
 }
+function cashValue(){
+  return cashCents ? Number(cashCents)/100 : 0;
+}
+function renderCashInput(){
+  document.getElementById("cashReceived").value=euro(cashValue());
+  calcChange();
+}
+function setCashAmount(value){
+  cashCents=String(Math.round(Number(value)*100));
+  renderCashInput();
+}
+function cashKey(key){
+  if(key==="clear") cashCents="";
+  else if(key==="back") cashCents=cashCents.slice(0,-1);
+  else if(/^\d$/.test(key)){
+    if(cashCents.length<7) cashCents=(cashCents+key).replace(/^0+(?=\d)/,"");
+  }
+  renderCashInput();
+}
 function openCashDialog(){
   const due=cartTotal();
+  cashCents="";
   document.getElementById("cashDue").textContent=euro(due);
-  document.getElementById("cashReceived").value="";
-  document.getElementById("changeDue").textContent=euro(0);
-  const vals=[due,Math.ceil(due/5)*5,Math.ceil(due/10)*10,20,50].filter((v,i,a)=>v>=due&&a.indexOf(v)===i).slice(0,4);
-  document.getElementById("cashQuick").innerHTML=vals.map(v=>`<button data-value="${v}">${euro(v)}</button>`).join("");
-  document.querySelectorAll("[data-value]").forEach(b=>b.onclick=()=>{document.getElementById("cashReceived").value=b.dataset.value;calcChange();});
+  const vals=[due,Math.ceil(due/5)*5,Math.ceil(due/10)*10,20,50]
+    .filter((v,i,a)=>v>=due&&a.indexOf(v)===i).slice(0,4);
+  document.getElementById("cashQuick").innerHTML=vals
+    .map(v=>`<button data-value="${v}">${euro(v)}</button>`).join("");
+  document.querySelectorAll("[data-value]").forEach(b=>b.onclick=()=>setCashAmount(b.dataset.value));
+  renderCashInput();
   document.getElementById("cashDialog").showModal();
 }
 function calcChange(){
-  const received=parseFloat((document.getElementById("cashReceived").value||"").replace(",","."));
-  const change=isNaN(received)?0:received-cartTotal();
+  const change=cashValue()-cartTotal();
   document.getElementById("changeDue").textContent=euro(Math.max(0,change));
 }
 function confirmCash(){
-  const received=parseFloat((document.getElementById("cashReceived").value||"").replace(",","."));
-  if(isNaN(received)||received<cartTotal())return toast("Ontvangen bedrag is te laag.");
+  const received=cashValue();
+  if(received<cartTotal())return toast("Ontvangen bedrag is te laag.");
   const change=received-cartTotal();
   document.getElementById("cashDialog").close();
   saveCurrentSale("Cash",received,change);
 }
+function holdCurrentOrder(){
+  const rows=cartRows();
+  if(!rows.length)return toast("De bestelling is leeg.");
+  if(editingSaleId)return toast("Sla eerst de aanpassing op of annuleer ze.");
+  const held=getHeld();
+  held.push({
+    id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),
+    createdAt:new Date().toISOString(),
+    items:rows,
+    total:cartTotal()
+  });
+  saveHeld(held);
+  cart={};
+  renderCart();
+  toast("Bestelling in wacht gezet.");
+}
+function renderHeld(){
+  const held=getHeld();
+  document.getElementById("heldList").innerHTML=held.length?held.map((h,idx)=>`
+    <div class="held-row">
+      <div>
+        <h3>Wachtende bestelling ${idx+1}</h3>
+        ${h.items.map(i=>`<p>${i.qty} × ${i.name}</p>`).join("")}
+        <small>${new Date(h.createdAt).toLocaleTimeString("nl-BE",{hour:"2-digit",minute:"2-digit"})}</small>
+      </div>
+      <div class="held-actions">
+        <strong>${euro(h.total)}</strong>
+        <button class="soft small" onclick="resumeHeld('${h.id}')">Verdergaan</button>
+        <button class="danger small" onclick="deleteHeld('${h.id}')">Verwijderen</button>
+      </div>
+    </div>`).join(""):`<div class="empty">Geen wachtende bestellingen.</div>`;
+}
+function openHeld(){
+  renderHeld();
+  document.getElementById("heldDialog").showModal();
+}
+function resumeHeld(id){
+  if(cartRows().length&&!confirm("De huidige bestelling vervangen?"))return;
+  const held=getHeld();
+  const found=held.find(h=>h.id===id);
+  if(!found)return;
+  cart={};
+  found.items.forEach(i=>cart[i.id]=i.qty);
+  saveHeld(held.filter(h=>h.id!==id));
+  renderCart();
+  document.getElementById("heldDialog").close();
+  toast("Wachtende bestelling geopend.");
+}
+function deleteHeld(id){
+  if(!confirm("Wachtende bestelling verwijderen?"))return;
+  saveHeld(getHeld().filter(h=>h.id!==id));
+  renderHeld();
+}
+
 function editSale(id){
   const sale=getSales().find(s=>s.id===id);
   if(!sale)return toast("Bestelling niet gevonden.");
@@ -171,18 +251,21 @@ function exportCSV(){
 }
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000)}
 
+document.getElementById("holdBtn").onclick=holdCurrentOrder;
+document.getElementById("heldBtn").onclick=openHeld;
+document.getElementById("heldCloseBtn").onclick=()=>document.getElementById("heldDialog").close();
 document.getElementById("rushBtn").onclick=()=>{rushMode=!rushMode;document.body.classList.toggle("rush",rushMode);document.getElementById("rushBtn").textContent=rushMode?"Normale modus":"🔥 Druktemodus";activeCategory="Alles";renderTabs();renderProducts();};
 document.getElementById("ordersBtn").onclick=openOrders;
 document.getElementById("summaryBtn").onclick=openSummary;
 document.getElementById("ordersCloseBtn").onclick=()=>document.getElementById("ordersDialog").close();
 document.getElementById("summaryCloseBtn").onclick=()=>document.getElementById("summaryDialog").close();
 document.getElementById("cashCloseBtn").onclick=()=>document.getElementById("cashDialog").close();
-document.getElementById("cashReceived").oninput=calcChange;
+document.querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>cashKey(b.dataset.key));
 document.getElementById("cashConfirmBtn").onclick=confirmCash;
 document.getElementById("csvBtn").onclick=exportCSV;
 document.getElementById("resetBtn").onclick=()=>{if(confirm("Alle bestellingen van vandaag verwijderen? Exporteer eerst je CSV.")){saveSales(getSales().filter(s=>s.date!==dateKey()));cart={};editingSaleId=null;renderCart();openSummary();toast("Nieuwe dag gestart.");}};
 document.getElementById("clearBtn").onclick=()=>{if(cartRows().length&&confirm(editingSaleId?"Aanpassing annuleren?":"Bestelling wissen?")){cart={};editingSaleId=null;renderCart();}};
 document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>startPayment(b.dataset.pay));
 
-renderTabs();renderProducts();renderCart();
+renderTabs();renderProducts();renderCart();updateHeldCount();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("service-worker.js").catch(()=>{});

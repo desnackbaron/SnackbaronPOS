@@ -15,6 +15,8 @@
 <header>
   <img src="logo.png" alt="De Snackbaron" class="logo">
   <div class="top-actions">
+    <button id="holdBtn" class="soft">⏸ In wacht</button>
+    <button id="heldBtn" class="soft">Wachtend <span id="heldCount">0</span></button>
     <button id="rushBtn" class="soft">🔥 Druktemodus</button>
     <button id="ordersBtn" class="soft">Bestellingen</button>
     <button id="summaryBtn" class="soft">Dagoverzicht</button>
@@ -59,8 +61,14 @@
   <div class="dialog-body">
     <div class="cash-due">Te betalen: <strong id="cashDue"></strong></div>
     <label for="cashReceived">Ontvangen bedrag</label>
-    <input id="cashReceived" inputmode="decimal" placeholder="Bijvoorbeeld 20">
+    <input id="cashReceived" inputmode="decimal" readonly placeholder="0,00">
     <div id="cashQuick" class="quick-grid"></div>
+    <div class="cash-keypad" id="cashKeypad">
+      <button data-key="1">1</button><button data-key="2">2</button><button data-key="3">3</button>
+      <button data-key="4">4</button><button data-key="5">5</button><button data-key="6">6</button>
+      <button data-key="7">7</button><button data-key="8">8</button><button data-key="9">9</button>
+      <button data-key="clear">C</button><button data-key="0">0</button><button data-key="back">⌫</button>
+    </div>
     <div class="change-box">Wisselgeld: <strong id="changeDue">€ 0,00</strong></div>
   </div>
   <div class="dialog-actions">
@@ -74,6 +82,15 @@
     <button id="ordersCloseBtn" class="soft small">Sluiten</button>
   </div>
   <div id="ordersList" class="dialog-body"></div>
+</dialog>
+
+
+<dialog id="heldDialog">
+  <div class="dialog-head">
+    <h2>Wachtende bestellingen</h2>
+    <button id="heldCloseBtn" class="soft small">Sluiten</button>
+  </div>
+  <div id="heldList" class="dialog-body"></div>
 </dialog>
 
 <dialog id="summaryDialog">

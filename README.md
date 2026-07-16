@@ -1,9 +1,9 @@
-# Snackbaron POS v2.0
+# Snackbaron POS v2.1
 
 Nieuw:
-- Elk bestelnummer van vandaag aanpassen
-- Elke bestelling verwijderen
-- Wisselgeldberekening bij cash
-- Ontvangen bedrag en wisselgeld in CSV-export
-- Druktemodus
-- Dagoverzicht
+- Duidelijk cashscherm met numeriek toetsenbord
+- Grote, zichtbare wisselgeldberekening
+- Snelknoppen voor gepast bedrag, €5/€10 afronding, €20 en €50
+- Bestelling in wacht zetten
+- Wachtende bestelling later hervatten
+- Bestellingen aanpassen en verwijderen
