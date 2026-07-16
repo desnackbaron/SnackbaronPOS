@@ -175,3 +175,10 @@ body.rush .product-image{height:88px}
   .product{min-height:132px}
   .product-image{height:82px}
 }
+
+.customer-counter{
+ display:flex;align-items:center;gap:8px;
+ background:#fff6e8;border:2px solid #d8b993;border-radius:12px;
+ padding:10px 14px;font-weight:800
+}
+.customer-counter strong{font-size:22px;color:#b54a00}

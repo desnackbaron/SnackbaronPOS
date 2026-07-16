@@ -3,7 +3,7 @@ const PRODUCTS=[{"id": "pulled-pork", "name": "Pulled Pork", "price": 10.0, "cat
 const KEY="snackbaron_pos_v2";
 const HELD_KEY="snackbaron_pos_held_v1";
 let cart={};
-let activeCategory="Favorieten";
+let activeCategory="Alles";
 let rushMode=false;
 let editingSaleId=null;
 let pendingPayment=null;
@@ -23,7 +23,7 @@ const saveHeld=h=>{localStorage.setItem(HELD_KEY,JSON.stringify(h));updateHeldCo
 function updateHeldCount(){document.getElementById("heldCount").textContent=getHeld().length;}
 
 
-function categories(){return ["Favorieten","Alles",...new Set(PRODUCTS.map(p=>p.cat))]}
+function categories(){return ["Alles",...new Set(PRODUCTS.map(p=>p.cat))]}
 function renderTabs(){
   document.getElementById("tabs").innerHTML=categories().map(c=>`<button class="${c===activeCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
   document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;renderTabs();renderProducts();});
@@ -34,12 +34,7 @@ function rushProducts(){
 }
 function renderProducts(){
   const source=rushMode?rushProducts():PRODUCTS;
-  const favoriteIds=["hamburger","cheeseburger","spekburger","broodje-mexicano","broodje-braadworst","cola","jupiler","plat-water"];
-  const list=activeCategory==="Favorieten"
-    ? source.filter(p=>favoriteIds.includes(p.id))
-    : activeCategory==="Alles"
-      ? source
-      : source.filter(p=>p.cat===activeCategory);
+  const list=activeCategory==="Alles"?source:source.filter(p=>p.cat===activeCategory);
   document.getElementById("productGrid").innerHTML=list.map(p=>`
     <button class="product ${p.image ? "has-image" : ""}" data-id="${p.id}">
       ${p.image ? `<img class="product-image" src="${p.image}" alt="${p.name}">` : ""}
@@ -95,7 +90,7 @@ function saveCurrentSale(payment,received,change){
     const sale={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),orderNo:nextOrderNo(),date:dateKey(),timestamp:new Date().toISOString(),items:rows,total:cartTotal(),payment,received,change};
     all.push(sale);saveSales(all);toast(`Bestelling #${sale.orderNo} opgeslagen.`);
   }
-  cart={};editingSaleId=null;pendingPayment=null;renderCart();renderOrders();
+  cart={};editingSaleId=null;pendingPayment=null;renderCart();renderOrders();updateCustomerCounter();
 }
 function cashValue(){
   return cashCents ? Number(cashCents)/100 : 0;
@@ -273,13 +268,16 @@ function exportCSV(){
   const csv="\ufeff"+data.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(";")).join("\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`Snackbaron_${dateKey()}.csv`;a.click();
 }
+function updateCustomerCounter(){
+ document.getElementById("customerNo").textContent=String(todaySales().length+1);
+}
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000)}
 
 document.getElementById("newCustomerBtn").onclick=newCustomer;
 document.getElementById("holdBtn").onclick=holdCurrentOrder;
 document.getElementById("heldBtn").onclick=openHeld;
 document.getElementById("heldCloseBtn").onclick=()=>document.getElementById("heldDialog").close();
-document.getElementById("rushBtn").onclick=()=>{rushMode=!rushMode;document.body.classList.toggle("rush",rushMode);document.getElementById("rushBtn").textContent=rushMode?"Normale modus":"🔥 Druktemodus";activeCategory="Favorieten";renderTabs();renderProducts();};
+document.getElementById("rushBtn").onclick=()=>{rushMode=!rushMode;document.body.classList.toggle("rush",rushMode);document.getElementById("rushBtn").textContent=rushMode?"Normale modus":"🔥 Druktemodus";activeCategory="Alles";renderTabs();renderProducts();};
 document.getElementById("ordersBtn").onclick=openOrders;
 document.getElementById("summaryBtn").onclick=openSummary;
 document.getElementById("ordersCloseBtn").onclick=()=>document.getElementById("ordersDialog").close();
@@ -288,9 +286,9 @@ document.getElementById("cashCloseBtn").onclick=()=>document.getElementById("cas
 document.querySelectorAll("[data-key]").forEach(b=>b.onclick=()=>cashKey(b.dataset.key));
 document.getElementById("cashConfirmBtn").onclick=confirmCash;
 document.getElementById("csvBtn").onclick=exportCSV;
-document.getElementById("resetBtn").onclick=()=>{if(confirm("Alle bestellingen van vandaag verwijderen? Exporteer eerst je CSV.")){saveSales(getSales().filter(s=>s.date!==dateKey()));cart={};editingSaleId=null;renderCart();openSummary();toast("Nieuwe dag gestart.");}};
+document.getElementById("resetBtn").onclick=()=>{if(confirm("Alle bestellingen van vandaag verwijderen? Exporteer eerst je CSV.")){saveSales(getSales().filter(s=>s.date!==dateKey()));cart={};editingSaleId=null;renderCart();openSummary();updateCustomerCounter();toast("Nieuwe dag gestart.");}};
 document.getElementById("clearBtn").onclick=()=>{if(cartRows().length&&confirm(editingSaleId?"Aanpassing annuleren?":"Bestelling wissen?")){cart={};editingSaleId=null;renderCart();}};
 document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>startPayment(b.dataset.pay));
 
-renderTabs();renderProducts();renderCart();updateHeldCount();
+renderTabs();renderProducts();renderCart();updateCustomerCounter();updateHeldCount();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("service-worker.js").catch(()=>{});
