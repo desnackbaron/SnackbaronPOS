@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#7a2e00">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Snackbaron Kassa">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>De Snackbaron Kassa</title>
+</head>
+<body>
+  <header class="topbar">
+    <img src="logo.png" alt="De Snackbaron" class="logo">
+    <div class="top-actions">
+      <button class="secondary" id="summaryBtn">Dagoverzicht</button>
+      <button class="secondary" id="fullscreenBtn">Volledig scherm</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="products-panel">
+      <nav id="categoryTabs" class="tabs"></nav>
+      <div id="productGrid" class="product-grid"></div>
+    </section>
+
+    <aside class="cart-panel">
+      <div class="cart-head">
+        <h2>Huidige bestelling</h2>
+        <button id="clearCartBtn" class="danger small">Wissen</button>
+      </div>
+      <div id="cartItems" class="cart-items">
+        <div class="empty">Tik op een product om te starten.</div>
+      </div>
+      <div class="cart-total">
+        <span>Totaal</span>
+        <strong id="cartTotal">€ 0,00</strong>
+      </div>
+      <div class="payment-grid">
+        <button class="pay cash" data-payment="Cash">Cash</button>
+        <button class="pay payconiq" data-payment="Payconiq">Payconiq</button>
+        <button class="pay card" data-payment="Bancontact">Bancontact</button>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="summaryDialog">
+    <div class="dialog-head">
+      <h2>Dagoverzicht</h2>
+      <button id="closeSummaryBtn" class="secondary small">Sluiten</button>
+    </div>
+    <div id="summaryContent"></div>
+    <div class="dialog-actions">
+      <button id="exportBtn" class="secondary">Exporteer CSV</button>
+      <button id="undoSaleBtn" class="secondary">Laatste verkoop verwijderen</button>
+      <button id="resetDayBtn" class="danger">Nieuwe dag starten</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

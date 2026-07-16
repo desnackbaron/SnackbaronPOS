@@ -1,0 +1,11 @@
+DE SNACKBARON KASSA
+
+1. Zet deze map op een webserver (bijvoorbeeld Netlify, GitHub Pages of je eigen hosting).
+2. Open index.html via Safari op de iPad.
+3. Tik op Delen > Zet op beginscherm.
+4. De kassa bewaart verkopen lokaal op de iPad.
+5. Exporteer dagelijks een CSV vanuit Dagoverzicht.
+
+Belangrijk:
+- Verwijder de browsergegevens van Safari niet zonder eerst de CSV te exporteren.
+- Maak dagelijks een export als back-up.
