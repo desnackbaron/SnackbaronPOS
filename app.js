@@ -1,9 +1,9 @@
 
-const PRODUCTS=[{"id": "pulled-pork", "name": "Pulled Pork", "price": 10.0, "cat": "Specials"}, {"id": "smokey-chicken", "name": "Smokey Chicken", "price": 10.0, "cat": "Specials"}, {"id": "chicken-tandoori", "name": "Chicken Tandoori", "price": 10.0, "cat": "Specials"}, {"id": "hamburger", "name": "Hamburger", "price": 5.5, "cat": "Burgers"}, {"id": "cheeseburger", "name": "Cheeseburger", "price": 6.0, "cat": "Burgers"}, {"id": "cheeseburger-royale", "name": "Cheeseburger Royale", "price": 8.0, "cat": "Burgers"}, {"id": "spekburger", "name": "Spekburger", "price": 6.5, "cat": "Burgers"}, {"id": "broodje-curryworst", "name": "Broodje Curryworst", "price": 5.5, "cat": "Broodjes"}, {"id": "curryworst", "name": "Curryworst", "price": 2.5, "cat": "Snacks"}, {"id": "broodje-mexicano", "name": "Broodje Mexicano", "price": 7.5, "cat": "Broodjes"}, {"id": "broodje-mexicano-cheese", "name": "Mexicano Cheese", "price": 8.0, "cat": "Broodjes"}, {"id": "bicky-burger", "name": "Bicky Burger", "price": 5.5, "cat": "Burgers"}, {"id": "bicky-cheese", "name": "Bicky Cheese", "price": 6.0, "cat": "Burgers"}, {"id": "broodje-braadworst", "name": "Broodje Braadworst", "price": 8.0, "cat": "Broodjes"}, {"id": "braadworst", "name": "Braadworst", "price": 4.5, "cat": "Snacks"}, {"id": "extra-kaas", "name": "Extra kaas", "price": 0.5, "cat": "Extra's"}, {"id": "dubbel-spek", "name": "Dubbel spek", "price": 1.0, "cat": "Extra's"}, {"id": "plat-water", "name": "Plat water", "price": 2.2, "cat": "Dranken"}, {"id": "bruis-water", "name": "Bruis water", "price": 2.5, "cat": "Dranken"}, {"id": "cola", "name": "Cola", "price": 2.5, "cat": "Dranken"}, {"id": "cola-zero", "name": "Cola Zero", "price": 2.5, "cat": "Dranken"}, {"id": "dr-pepper", "name": "Dr Pepper", "price": 2.5, "cat": "Dranken"}, {"id": "fanta", "name": "Fanta", "price": 2.5, "cat": "Dranken"}, {"id": "sprite", "name": "Sprite", "price": 2.5, "cat": "Dranken"}, {"id": "jupiler", "name": "Jupiler", "price": 2.5, "cat": "Dranken", "image": "images/jupiler.png"}, {"id": "ice-tea", "name": "Ice Tea", "price": 2.5, "cat": "Dranken"}, {"id": "ice-tea-peach", "name": "Ice Tea Peach", "price": 2.5, "cat": "Dranken"}, {"id": "red-bull", "name": "Red Bull", "price": 3.2, "cat": "Dranken"}, {"id": "monster", "name": "Monster", "price": 3.5, "cat": "Dranken"}];
+const PRODUCTS=[{"id": "pulled-pork", "name": "Pulled Pork", "price": 10.0, "cat": "Specials"}, {"id": "smokey-chicken", "name": "Smokey Chicken", "price": 10.0, "cat": "Specials"}, {"id": "chicken-tandoori", "name": "Chicken Tandoori", "price": 10.0, "cat": "Specials"}, {"id": "hamburger", "name": "Hamburger", "price": 5.5, "cat": "Burgers"}, {"id": "cheeseburger", "name": "Cheeseburger", "price": 6.0, "cat": "Burgers"}, {"id": "cheeseburger-royale", "name": "Cheeseburger Royale", "price": 8.0, "cat": "Burgers"}, {"id": "spekburger", "name": "Spekburger", "price": 6.5, "cat": "Burgers"}, {"id": "broodje-curryworst", "name": "Broodje Curryworst", "price": 5.5, "cat": "Broodjes"}, {"id": "curryworst", "name": "Curryworst", "price": 2.5, "cat": "Snacks"}, {"id": "broodje-mexicano", "name": "Broodje Mexicano", "price": 7.5, "cat": "Broodjes"}, {"id": "broodje-mexicano-cheese", "name": "Mexicano Cheese", "price": 8.0, "cat": "Broodjes"}, {"id": "bicky-burger", "name": "Bicky Burger", "price": 5.5, "cat": "Burgers"}, {"id": "bicky-cheese", "name": "Bicky Cheese", "price": 6.0, "cat": "Burgers"}, {"id": "broodje-braadworst", "name": "Broodje Braadworst", "price": 8.0, "cat": "Broodjes"}, {"id": "braadworst", "name": "Braadworst", "price": 4.5, "cat": "Snacks"}, {"id": "extra-kaas", "name": "Extra kaas", "price": 0.5, "cat": "Extra's"}, {"id": "dubbel-spek", "name": "Dubbel spek", "price": 1.0, "cat": "Extra's"}, {"id": "plat-water", "name": "Plat water", "price": 2.2, "cat": "Dranken", "image": "images/plat-water.png"}, {"id": "bruis-water", "name": "Bruis water", "price": 2.5, "cat": "Dranken", "image": "images/bruis-water.png"}, {"id": "cola", "name": "Cola", "price": 2.5, "cat": "Dranken", "image": "images/cola.png"}, {"id": "cola-zero", "name": "Cola Zero", "price": 2.5, "cat": "Dranken", "image": "images/cola-zero.png"}, {"id": "dr-pepper", "name": "Dr Pepper", "price": 2.5, "cat": "Dranken", "image": "images/dr-pepper.png"}, {"id": "fanta", "name": "Fanta", "price": 2.5, "cat": "Dranken", "image": "images/fanta.png"}, {"id": "sprite", "name": "Sprite", "price": 2.5, "cat": "Dranken", "image": "images/sprite.png"}, {"id": "jupiler", "name": "Jupiler", "price": 2.5, "cat": "Dranken", "image": "images/jupiler.png"},{"id": "jupiler-00", "name": "Jupiler 0.0", "price": 2.5, "cat": "Dranken", "image": "images/jupiler-00.png"}, {"id": "ice-tea", "name": "Ice Tea", "price": 2.5, "cat": "Dranken", "image": "images/ice-tea.png"}, {"id": "ice-tea-peach", "name": "Ice Tea Peach", "price": 2.5, "cat": "Dranken", "image": "images/ice-tea-peach.png"}, {"id": "red-bull", "name": "Red Bull", "price": 3.2, "cat": "Dranken", "image": "images/red-bull.png"}, {"id": "monster", "name": "Monster", "price": 3.5, "cat": "Dranken", "image": "images/monster.png"}];
 const KEY="snackbaron_pos_v2";
 const HELD_KEY="snackbaron_pos_held_v1";
 let cart={};
-let activeCategory="Alles";
+let activeCategory="Favorieten";
 let rushMode=false;
 let editingSaleId=null;
 let pendingPayment=null;
@@ -23,7 +23,7 @@ const saveHeld=h=>{localStorage.setItem(HELD_KEY,JSON.stringify(h));updateHeldCo
 function updateHeldCount(){document.getElementById("heldCount").textContent=getHeld().length;}
 
 
-function categories(){return ["Alles",...new Set(PRODUCTS.map(p=>p.cat))]}
+function categories(){return ["Favorieten","Alles",...new Set(PRODUCTS.map(p=>p.cat))]}
 function renderTabs(){
   document.getElementById("tabs").innerHTML=categories().map(c=>`<button class="${c===activeCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
   document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;renderTabs();renderProducts();});
@@ -34,7 +34,12 @@ function rushProducts(){
 }
 function renderProducts(){
   const source=rushMode?rushProducts():PRODUCTS;
-  const list=activeCategory==="Alles"?source:source.filter(p=>p.cat===activeCategory);
+  const favoriteIds=["hamburger","cheeseburger","spekburger","broodje-mexicano","broodje-braadworst","cola","jupiler","plat-water"];
+  const list=activeCategory==="Favorieten"
+    ? source.filter(p=>favoriteIds.includes(p.id))
+    : activeCategory==="Alles"
+      ? source
+      : source.filter(p=>p.cat===activeCategory);
   document.getElementById("productGrid").innerHTML=list.map(p=>`
     <button class="product ${p.image ? "has-image" : ""}" data-id="${p.id}">
       ${p.image ? `<img class="product-image" src="${p.image}" alt="${p.name}">` : ""}
@@ -274,7 +279,7 @@ document.getElementById("newCustomerBtn").onclick=newCustomer;
 document.getElementById("holdBtn").onclick=holdCurrentOrder;
 document.getElementById("heldBtn").onclick=openHeld;
 document.getElementById("heldCloseBtn").onclick=()=>document.getElementById("heldDialog").close();
-document.getElementById("rushBtn").onclick=()=>{rushMode=!rushMode;document.body.classList.toggle("rush",rushMode);document.getElementById("rushBtn").textContent=rushMode?"Normale modus":"🔥 Druktemodus";activeCategory="Alles";renderTabs();renderProducts();};
+document.getElementById("rushBtn").onclick=()=>{rushMode=!rushMode;document.body.classList.toggle("rush",rushMode);document.getElementById("rushBtn").textContent=rushMode?"Normale modus":"🔥 Druktemodus";activeCategory="Favorieten";renderTabs();renderProducts();};
 document.getElementById("ordersBtn").onclick=openOrders;
 document.getElementById("summaryBtn").onclick=openSummary;
 document.getElementById("ordersCloseBtn").onclick=()=>document.getElementById("ordersDialog").close();

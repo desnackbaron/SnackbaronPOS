@@ -1,8 +1,11 @@
-# Snackbaron POS v2.4
+# Snackbaron POS v3.0
 
 Nieuw:
-- Productfoto toegevoegd aan de knop Jupiler
-- Alleen de Jupiler-knop gebruikt voorlopig een foto
-- Basis voorbereid om later foto's aan andere producten toe te voegen
+- Alle drankknoppen met foto
+- Jupiler 0.0 toegevoegd aan het assortiment (€2,50)
+- Nieuwe categorie Favorieten
+- Drankfoto's uniform geschaald voor liggende iPad
+- Prijs als duidelijk gouden label
+- Betere offline cache voor alle productfoto's
 
-Upload alle bestanden en mappen naar GitHub, inclusief de map `images`.
+Upload alle bestanden en ook de volledige map `images`.
