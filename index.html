@@ -1,70 +1,94 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#7a2e00">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Snackbaron Kassa">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="logo.png">
-  <link rel="stylesheet" href="styles.css">
-  <title>De Snackbaron Kassa</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#6a2600">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.png">
+<link rel="stylesheet" href="styles.css">
+<title>Snackbaron POS</title>
 </head>
 <body>
-  <header class="topbar">
-    <img src="logo.png" alt="De Snackbaron" class="logo">
-    <div class="top-actions">
-      <button class="secondary" id="summaryBtn">Dagoverzicht</button>
-      <button class="secondary" id="fullscreenBtn">Volledig scherm</button>
+<header>
+  <img src="logo.png" alt="De Snackbaron" class="logo">
+  <div class="top-actions">
+    <button id="rushBtn" class="soft">🔥 Druktemodus</button>
+    <button id="ordersBtn" class="soft">Bestellingen</button>
+    <button id="summaryBtn" class="soft">Dagoverzicht</button>
+  </div>
+</header>
+
+<main>
+  <section class="products-panel">
+    <nav id="tabs" class="tabs"></nav>
+    <div id="productGrid" class="product-grid"></div>
+  </section>
+
+  <aside class="cart-panel">
+    <div class="cart-header">
+      <div>
+        <h2 id="cartTitle">Nieuwe bestelling</h2>
+        <small id="editHint"></small>
+      </div>
+      <button id="clearBtn" class="danger small">Wissen</button>
     </div>
-  </header>
 
-  <main class="layout">
-    <section class="products-panel">
-      <nav id="categoryTabs" class="tabs"></nav>
-      <div id="productGrid" class="product-grid"></div>
-    </section>
+    <div id="cartItems" class="cart-items"></div>
 
-    <aside class="cart-panel">
-      <div class="cart-head">
-        <h2>Huidige bestelling</h2>
-        <button id="clearCartBtn" class="danger small">Wissen</button>
-      </div>
-      <div id="editBar" class="edit-bar" hidden>
-        <span id="editText">Bestelling aanpassen</span>
-        <button id="cancelEditBtn" class="secondary small">Annuleren</button>
-      </div>
-      <div id="cartItems" class="cart-items">
-        <div class="empty">Tik op een product om te starten.</div>
-      </div>
-      <div class="cart-total">
-        <span>Totaal</span>
-        <strong id="cartTotal">€ 0,00</strong>
-      </div>
-      <div class="payment-grid">
-        <button class="pay cash" data-payment="Cash">Cash</button>
-        <button class="pay payconiq" data-payment="Payconiq">Payconiq</button>
-        <button class="pay card" data-payment="Bancontact">Bancontact</button>
-      </div>
-    </aside>
-  </main>
-
-  <dialog id="summaryDialog">
-    <div class="dialog-head">
-      <h2>Dagoverzicht</h2>
-      <button id="closeSummaryBtn" class="secondary small">Sluiten</button>
+    <div class="cart-total">
+      <span>Totaal</span>
+      <strong id="cartTotal">€ 0,00</strong>
     </div>
-    <div id="summaryContent"></div>
-    <div class="dialog-actions">
-      <button id="exportBtn" class="secondary">Exporteer CSV</button>
-      <button id="undoSaleBtn" class="secondary">Laatste verkoop verwijderen</button>
-      <button id="resetDayBtn" class="danger">Nieuwe dag starten</button>
-    </div>
-  </dialog>
 
-  <div id="toast" class="toast"></div>
-  <script src="app.js"></script>
+    <div class="payment-grid">
+      <button class="pay cash" data-pay="Cash">Cash</button>
+      <button class="pay payconiq" data-pay="Payconiq">Payconiq</button>
+      <button class="pay card" data-pay="Bancontact">Bancontact</button>
+    </div>
+  </aside>
+</main>
+
+<dialog id="cashDialog">
+  <div class="dialog-head">
+    <h2>Cashbetaling</h2>
+    <button id="cashCloseBtn" class="soft small">Sluiten</button>
+  </div>
+  <div class="dialog-body">
+    <div class="cash-due">Te betalen: <strong id="cashDue"></strong></div>
+    <label for="cashReceived">Ontvangen bedrag</label>
+    <input id="cashReceived" inputmode="decimal" placeholder="Bijvoorbeeld 20">
+    <div id="cashQuick" class="quick-grid"></div>
+    <div class="change-box">Wisselgeld: <strong id="changeDue">€ 0,00</strong></div>
+  </div>
+  <div class="dialog-actions">
+    <button id="cashConfirmBtn" class="pay cash">Betaling opslaan</button>
+  </div>
+</dialog>
+
+<dialog id="ordersDialog">
+  <div class="dialog-head">
+    <h2>Bestellingen van vandaag</h2>
+    <button id="ordersCloseBtn" class="soft small">Sluiten</button>
+  </div>
+  <div id="ordersList" class="dialog-body"></div>
+</dialog>
+
+<dialog id="summaryDialog">
+  <div class="dialog-head">
+    <h2>Dagoverzicht</h2>
+    <button id="summaryCloseBtn" class="soft small">Sluiten</button>
+  </div>
+  <div id="summaryBody" class="dialog-body"></div>
+  <div class="dialog-actions">
+    <button id="csvBtn" class="soft">CSV exporteren</button>
+    <button id="resetBtn" class="danger">Nieuwe dag starten</button>
+  </div>
+</dialog>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
 </body>
 </html>

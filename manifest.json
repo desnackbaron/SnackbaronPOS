@@ -1,10 +1,10 @@
 {
-  "name": "De Snackbaron Kassa",
+  "name": "Snackbaron POS",
   "short_name": "Snackbaron",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4eadb",
-  "theme_color": "#7a2e00",
+  "background_color": "#f1e4d2",
+  "theme_color": "#6a2600",
   "icons": [
     {
       "src": "logo.png",
