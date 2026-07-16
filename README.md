@@ -1,13 +1,17 @@
-# Snackbaron POS v3.5 – Foodcost en Snackbaron PRO
+# Snackbaron POS v3.6 – Synchronisatie Snackbaron PRO v5.0
 
-Nieuw:
-- Foodcost per lopende bestelling
-- Brutowinst per lopende bestelling
-- Foodcost en brutowinst per opgeslagen bestelling
-- Dagtotaal foodcost en brutowinst
-- Cockpit uitgebreid met financiële cijfers
-- Exportknop **Export Snackbaron PRO**
-- Exportbestand volgt de kolommen van het tabblad Dagstaat
+Bijgewerkt vanuit het tabblad **Producten** van Snackbaron PRO v5.0:
 
-Kostprijzen komen uit Snackbaron PRO v5.1.
-Voor Monster en Dubbel spek staat nog geen kostprijs in Snackbaron PRO. Deze tellen daarom voorlopig niet mee in foodcost en brutowinst.
+- Alle 30 actieve producten
+- Exacte verkoopprijzen
+- Exacte kostprijzen
+- BTW-percentage per product
+- Doelvoorraad per product
+- Foodcost en brutowinst opnieuw gekoppeld
+- Angus Beefburger en Kip burger XL toegevoegd
+- Jupiler gebruikt 21% btw
+- Monster en Dubbel spek verwijderd omdat ze niet in Producten v5.0 staan
+- Export Snackbaron PRO bevat nu ook Angus Beefburger en Kip Burger XL
+
+De productknoppen tonen via lang indrukken/muisaanwijzer:
+kostprijs, brutowinst per stuk en doelvoorraad.
