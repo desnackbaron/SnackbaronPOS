@@ -1,10 +1,13 @@
-# Snackbaron POS v3.2
+# Snackbaron POS v3.3
 
 Nieuw:
-- Tab **Druktemeter**
-- Aantal klanten per uur
-- Balkweergave per uur
+- Druktemodus verwijderd
+- Cockpit toegevoegd
+- Live omzet
+- Klantenteller
+- Gemiddelde ticketwaarde
+- Drankaandeel
 - Drukste uur
-- Kalmste uur
-- Gemiddeld aantal klanten per uur
-- Uren zonder verkoop blijven zichtbaar
+- Wachtende bestellingen
+- Topproducten
+- Omzet per betaalmethode

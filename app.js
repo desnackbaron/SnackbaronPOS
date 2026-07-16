@@ -4,7 +4,6 @@ const KEY="snackbaron_pos_v2";
 const HELD_KEY="snackbaron_pos_held_v1";
 let cart={};
 let activeCategory="Alles";
-let rushMode=false;
 let editingSaleId=null;
 let pendingPayment=null;
 let cashCents="";
@@ -28,13 +27,8 @@ function renderTabs(){
   document.getElementById("tabs").innerHTML=categories().map(c=>`<button class="${c===activeCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
   document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;renderTabs();renderProducts();});
 }
-function rushProducts(){
-  const ids=["hamburger","cheeseburger","cheeseburger-royale","spekburger","broodje-mexicano","broodje-braadworst","cola","jupiler","plat-water"];
-  return PRODUCTS.filter(p=>ids.includes(p.id));
-}
 function renderProducts(){
-  const source=rushMode?rushProducts():PRODUCTS;
-  const list=activeCategory==="Alles"?source:source.filter(p=>p.cat===activeCategory);
+  const list=activeCategory==="Alles"?PRODUCTS:PRODUCTS.filter(p=>p.cat===activeCategory);
   document.getElementById("productGrid").innerHTML=list.map(p=>`
     <button class="product ${p.image ? "has-image" : ""}" data-id="${p.id}">
       ${p.image ? `<img class="product-image" src="${p.image}" alt="${p.name}">` : ""}
@@ -245,6 +239,73 @@ function renderOrders(){
 }
 function openOrders(){renderOrders();document.getElementById("ordersDialog").showModal();}
 
+
+function openCockpit(){
+  const sales=todaySales();
+  const turnover=sales.reduce((sum,s)=>sum+s.total,0);
+  const avg=sales.length?turnover/sales.length:0;
+  const productStats={};
+  const paymentStats={};
+
+  sales.forEach(s=>{
+    paymentStats[s.payment]=(paymentStats[s.payment]||0)+s.total;
+    s.items.forEach(i=>{
+      if(!productStats[i.name]) productStats[i.name]={qty:0,total:0};
+      productStats[i.name].qty+=i.qty;
+      productStats[i.name].total+=i.total;
+    });
+  });
+
+  const topProducts=Object.entries(productStats)
+    .sort((a,b)=>b[1].qty-a[1].qty)
+    .slice(0,5);
+
+  const hours={};
+  sales.forEach(s=>{
+    const hour=new Date(s.timestamp).getHours();
+    hours[hour]=(hours[hour]||0)+1;
+  });
+  const busiest=Object.entries(hours).sort((a,b)=>b[1]-a[1])[0];
+
+  const drinkNames=PRODUCTS.filter(p=>p.cat==="Dranken").map(p=>p.name);
+  let drinks=0;
+  let food=0;
+  sales.forEach(s=>s.items.forEach(i=>{
+    if(drinkNames.includes(i.name)) drinks+=i.qty;
+    else food+=i.qty;
+  }));
+  const drinkRatio=(drinks+food)?(drinks/(drinks+food))*100:0;
+
+  document.getElementById("cockpitBody").innerHTML=`
+    <div class="cockpit-grid">
+      <div class="cockpit-card"><span>Omzet vandaag</span><strong>${euro(turnover)}</strong></div>
+      <div class="cockpit-card"><span>Klanten</span><strong>${sales.length}</strong></div>
+      <div class="cockpit-card"><span>Gemiddeld ticket</span><strong>${euro(avg)}</strong></div>
+      <div class="cockpit-card"><span>Drank aandeel</span><strong>${drinkRatio.toFixed(0)}%</strong></div>
+      <div class="cockpit-card"><span>Drukste uur</span><strong>${busiest?String(busiest[0]).padStart(2,"0")+":00":"—"}</strong></div>
+      <div class="cockpit-card"><span>Wachtende bestellingen</span><strong>${getHeld().length}</strong></div>
+    </div>
+
+    <h3>Topproducten</h3>
+    <div class="cockpit-list">
+      ${topProducts.length?topProducts.map(([name,v],idx)=>`
+        <div class="cockpit-list-row">
+          <span>${idx+1}. ${name}</span>
+          <strong>${v.qty} stuks · ${euro(v.total)}</strong>
+        </div>`).join(""):`<div class="empty">Nog geen verkopen vandaag.</div>`}
+    </div>
+
+    <h3>Betaalmethodes</h3>
+    <div class="cockpit-list">
+      ${Object.entries(paymentStats).length?Object.entries(paymentStats).map(([name,total])=>`
+        <div class="cockpit-list-row">
+          <span>${name}</span>
+          <strong>${euro(total)}</strong>
+        </div>`).join(""):`<div class="empty">Nog geen verkopen vandaag.</div>`}
+    </div>`;
+  document.getElementById("cockpitDialog").showModal();
+}
+
 function openTraffic(){
   const sales=todaySales();
   const hours={};
@@ -332,8 +393,9 @@ document.getElementById("newCustomerBtn").onclick=newCustomer;
 document.getElementById("holdBtn").onclick=holdCurrentOrder;
 document.getElementById("heldBtn").onclick=openHeld;
 document.getElementById("heldCloseBtn").onclick=()=>document.getElementById("heldDialog").close();
-document.getElementById("rushBtn").onclick=()=>{rushMode=!rushMode;document.body.classList.toggle("rush",rushMode);document.getElementById("rushBtn").textContent=rushMode?"Normale modus":"🔥 Druktemodus";activeCategory="Alles";renderTabs();renderProducts();};
 document.getElementById("ordersBtn").onclick=openOrders;
+document.getElementById("cockpitBtn").onclick=openCockpit;
+document.getElementById("cockpitCloseBtn").onclick=()=>document.getElementById("cockpitDialog").close();
 document.getElementById("trafficBtn").onclick=openTraffic;
 document.getElementById("trafficCloseBtn").onclick=()=>document.getElementById("trafficDialog").close();
 document.getElementById("summaryBtn").onclick=openSummary;
