@@ -3,6 +3,7 @@ const PRODUCTS = [{"id": "pulled-pork", "name": "Pulled Pork", "price": 10.0, "c
 const STORAGE_KEY = "snackbaron_sales_v1";
 let cart = {};
 let activeCategory = "Alles";
+let editingSaleId = null;
 
 const euro = value => new Intl.NumberFormat("nl-BE", {style:"currency", currency:"EUR"}).format(value);
 const todayKey = () => new Date().toISOString().slice(0,10);
@@ -66,10 +67,85 @@ function renderCart(){
 function checkout(payment){
   const rows=cartRows();
   if(!rows.length) return toast("De bestelling is leeg.");
-  const sale={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),timestamp:new Date().toISOString(),date:todayKey(),payment,items:rows,total:cartTotal()};
-  const sales=getSales(); sales.push(sale); saveSales(sales);
-  cart={}; renderCart(); toast(`Verkoop opgeslagen: ${euro(sale.total)} via ${payment}`);
+
+  const sales=getSales();
+
+  if(editingSaleId){
+    const idx=sales.findIndex(s=>s.id===editingSaleId);
+    if(idx<0){
+      cancelEdit();
+      return toast("De oorspronkelijke bestelling werd niet gevonden.");
+    }
+    sales[idx]={
+      ...sales[idx],
+      timestamp:new Date().toISOString(),
+      payment,
+      items:rows,
+      total:cartTotal(),
+      edited:true
+    };
+    saveSales(sales);
+    cart={};
+    editingSaleId=null;
+    updateEditBar();
+    renderCart();
+    toast("Bestelling aangepast.");
+    return;
+  }
+
+  const sale={
+    id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),
+    timestamp:new Date().toISOString(),
+    date:todayKey(),
+    payment,
+    items:rows,
+    total:cartTotal()
+  };
+  sales.push(sale);
+  saveSales(sales);
+  cart={};
+  renderCart();
+  toast(`Verkoop opgeslagen: ${euro(sale.total)} via ${payment}`);
 }
+
+function editSale(id){
+  const sale=getSales().find(s=>s.id===id);
+  if(!sale) return toast("Bestelling niet gevonden.");
+
+  if(cartRows().length && !confirm("De huidige, nog niet betaalde bestelling vervangen?")) return;
+
+  cart={};
+  sale.items.forEach(item=>{
+    const product=PRODUCTS.find(p=>p.id===item.id);
+    if(product) cart[item.id]=item.qty;
+  });
+
+  editingSaleId=id;
+  updateEditBar();
+  renderCart();
+  document.getElementById("summaryDialog").close();
+  toast("Pas de producten aan en kies opnieuw de betaalmethode.");
+}
+
+function cancelEdit(){
+  editingSaleId=null;
+  cart={};
+  updateEditBar();
+  renderCart();
+  toast("Aanpassing geannuleerd.");
+}
+
+function updateEditBar(){
+  const bar=document.getElementById("editBar");
+  if(!bar) return;
+  bar.hidden=!editingSaleId;
+  if(editingSaleId){
+    const sale=getSales().find(s=>s.id===editingSaleId);
+    const time=sale ? new Date(sale.timestamp).toLocaleTimeString("nl-BE",{hour:"2-digit",minute:"2-digit"}) : "";
+    document.getElementById("editText").textContent=`Bestelling van ${time} aanpassen`;
+  }
+}
+
 function todaysSales(){ return getSales().filter(s=>s.date===todayKey()); }
 function summaryHtml(){
   const sales=todaysSales();
@@ -96,7 +172,22 @@ function summaryHtml(){
     <h3>Betaalmethodes</h3>
     <table class="summary-table"><tbody>${payRows||"<tr><td>Nog geen verkopen</td><td>€ 0,00</td></tr>"}</tbody></table>
     <h3>Producten</h3>
-    <table class="summary-table"><thead><tr><th>Product</th><th>Aantal</th><th>Omzet</th></tr></thead><tbody>${prodRows||"<tr><td>Nog geen verkopen</td><td>0</td><td>€ 0,00</td></tr>"}</tbody></table>`;
+    <table class="summary-table"><thead><tr><th>Product</th><th>Aantal</th><th>Omzet</th></tr></thead><tbody>${prodRows||"<tr><td>Nog geen verkopen</td><td>0</td><td>€ 0,00</td></tr>"}</tbody></table>
+    <h3>Bestellingen van vandaag</h3>
+    <div class="orders-list">
+      ${sales.length ? [...sales].reverse().map(s=>`
+        <div class="order-row">
+          <div>
+            <strong>${new Date(s.timestamp).toLocaleTimeString("nl-BE",{hour:"2-digit",minute:"2-digit"})}</strong>
+            <span>${s.items.map(i=>`${i.qty}× ${i.name}`).join(", ")}</span>
+            <small>${s.payment}${s.edited ? " · aangepast" : ""}</small>
+          </div>
+          <div class="order-actions">
+            <strong>${euro(s.total)}</strong>
+            <button class="secondary small" onclick="editSale('${s.id}')">Aanpassen</button>
+          </div>
+        </div>`).join("") : `<div class="empty">Nog geen bestellingen vandaag.</div>`}
+    </div>`;
 }
 function openSummary(){
   document.getElementById("summaryContent").innerHTML=summaryHtml();
@@ -131,8 +222,16 @@ function toast(msg){
   setTimeout(()=>el.classList.remove("show"),2200);
 }
 
-document.getElementById("clearCartBtn").onclick=()=>{ if(cartRows().length && confirm("Bestelling wissen?")){cart={};renderCart();} };
+document.getElementById("clearCartBtn").onclick=()=>{
+  if(cartRows().length && confirm(editingSaleId ? "Aanpassing annuleren en bestelling leegmaken?" : "Bestelling wissen?")){
+    cart={};
+    editingSaleId=null;
+    updateEditBar();
+    renderCart();
+  }
+};
 document.querySelectorAll("[data-payment]").forEach(b=>b.onclick=()=>checkout(b.dataset.payment));
+document.getElementById("cancelEditBtn").onclick=cancelEdit;
 document.getElementById("summaryBtn").onclick=openSummary;
 document.getElementById("closeSummaryBtn").onclick=()=>document.getElementById("summaryDialog").close();
 document.getElementById("exportBtn").onclick=exportCSV;
@@ -140,6 +239,6 @@ document.getElementById("undoSaleBtn").onclick=undoLastSale;
 document.getElementById("resetDayBtn").onclick=resetDay;
 document.getElementById("fullscreenBtn").onclick=()=>document.documentElement.requestFullscreen?.();
 
-renderTabs(); renderProducts(); renderCart();
+renderTabs(); renderProducts(); renderCart(); updateEditBar();
 
 if("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js").catch(()=>{});
