@@ -116,7 +116,7 @@
   <div id="trafficBody" class="dialog-body"></div>
 </dialog>
 
-<dialog id="summaryDialog">
+<dialog id="closeDayDialog"><div class="dialog-head"><h2>Dag afsluiten</h2><button id="closeDayDialogBtn" class="soft small">Sluiten</button></div><div class="dialog-body"><div id="closeDaySummary" class="close-day-summary"></div><div class="close-day-form"><label>Standplaats<input id="closeStandplaats"></label><label>Weer<select id="closeWeer"><option value="">Kies</option><option>Zonnig</option><option>Bewolkt</option><option>Regen</option><option>Warm</option><option>Koud</option><option>Winderig</option></select></label><label>Personeel<select id="closePersoneel"><option>Alleen</option><option>Met 1 helper</option><option>Met 2 helpers</option></select></label><label>Gas/Diesel (€)<input id="closeGas" type="number" step="0.01" value="0"></label><label>Standgeld (€)<input id="closeStandgeld" type="number" step="0.01" value="0"></label><label>Overige kosten (€)<input id="closeOther" type="number" step="0.01" value="0"></label><label class="full">Opmerking<textarea id="closeNote" rows="3"></textarea></label></div><div id="syncStatus" class="sync-status" hidden></div></div><div class="dialog-actions"><button id="sendToProBtn" class="pay cash">Verstuur nu</button></div></dialog><dialog id="summaryDialog">
   <div class="dialog-head">
     <h2>Dagoverzicht</h2>
     <button id="summaryCloseBtn" class="soft small">Sluiten</button>
@@ -124,7 +124,7 @@
   <div id="summaryBody" class="dialog-body"></div>
   <div class="dialog-actions">
     <button id="csvBtn" class="soft">Detail CSV</button>
-    <button id="proExportBtn" class="soft">Export Snackbaron PRO</button>
+    <button id="closeDayBtn" class="soft">📤 Verstuur naar Snackbaron PRO</button>
     <button id="resetBtn" class="danger">Nieuwe dag starten</button>
   </div>
 </dialog>
