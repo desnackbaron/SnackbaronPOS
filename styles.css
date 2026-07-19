@@ -94,11 +94,6 @@ th:last-child,td:last-child{text-align:right}
   .top-actions{gap:5px}.top-actions .soft{padding:10px 9px;font-size:14px}
 }
 
-.new-customer{
-  border:0;border-radius:12px;padding:11px 15px;font-weight:900;
-  background:#1f7a4d;color:#fff;box-shadow:0 2px 7px rgba(0,0,0,.12)
-}
-.new-customer:active{transform:scale(.98)}
 #nextOrderBadge{
   display:inline-flex;align-items:center;justify-content:center;
   min-width:42px;height:28px;padding:0 8px;border-radius:999px;
@@ -331,3 +326,10 @@ th:last-child,td:last-child{text-align:right}
   color:#7a4200;
 }
 .close-day-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.close-day-summary>div{background:#fff1dc;border:1px solid var(--line);border-radius:13px;padding:12px}.close-day-summary span{display:block;color:#725b49;font-size:13px}.close-day-summary strong{display:block;font-size:22px;margin-top:4px}.close-day-form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.close-day-form label{display:flex;flex-direction:column;gap:6px;font-weight:800}.close-day-form input,.close-day-form select,.close-day-form textarea{border:2px solid var(--line);border-radius:11px;padding:11px;background:#fffdf8}.close-day-form .full{grid-column:1/-1}.sync-status{margin-top:14px;padding:12px;border-radius:11px;font-weight:800}.sync-status.ok{background:#dff5e9;border:1px solid #8dd2ab;color:#17683f}.sync-status.error{background:#ffe3df;border:1px solid #e5a198;color:#8c231a}
+.top-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}

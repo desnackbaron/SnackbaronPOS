@@ -155,22 +155,6 @@ function confirmCash(){
   saveCurrentSale("Cash",received,change);
 }
 
-function newCustomer(){
-  if(editingSaleId){
-    if(!confirm("Je past momenteel een eerdere bestelling aan. Aanpassing annuleren en een nieuwe klant starten?")) return;
-    editingSaleId=null;
-    cart={};
-    renderCart();
-    toast("Nieuwe klant gestart.");
-    return;
-  }
-  if(cartRows().length){
-    if(!confirm("Deze bestelling is nog niet betaald. Wissen en een nieuwe klant starten?")) return;
-  }
-  cart={};
-  renderCart();
-  toast("Nieuwe klant gestart.");
-}
 function holdCurrentOrder(){
   const rows=cartRows();
   if(!rows.length)return toast("De bestelling is leeg.");
@@ -508,7 +492,6 @@ function exportSnackbaronPRO(){
 
 function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2000)}
 
-document.getElementById("newCustomerBtn").onclick=newCustomer;
 document.getElementById("holdBtn").onclick=holdCurrentOrder;
 document.getElementById("heldBtn").onclick=openHeld;
 document.getElementById("heldCloseBtn").onclick=()=>document.getElementById("heldDialog").close();
