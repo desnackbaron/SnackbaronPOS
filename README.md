@@ -1,6 +1,10 @@
-# Snackbaron POS v4.1
+# Snackbaron POS v4.2
 
-- Knop **Nieuwe klant** verwijderd
-- Wisselgeldberekening bij cash blijft behouden
-- Na betaling wordt de bestelling automatisch opgeslagen en leeggemaakt
-- Klantteller gaat automatisch naar de volgende klant
+Hersteld:
+- Google Sheets-verzending op iPad/Safari
+- De fout "The string did not match the expected pattern" is omzeild
+- Verzending gebruikt nu een Safari-compatibele methode
+- Wisselgeld en alle bestaande functies blijven behouden
+
+Na verzenden toont de app:
+"Verzonden naar Snackbaron PRO. Controleer Dagstaat."

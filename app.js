@@ -399,7 +399,52 @@ function nval(id){const v=parseFloat(document.getElementById(id).value||"0");ret
 function weekNo(d){const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);const y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y)/86400000)+1)/7)}
 function makeProData(extra){const sales=todaySales(),counts={};sales.forEach(s=>(s.items||[]).forEach(i=>counts[i.id]=(counts[i.id]||0)+i.qty));const total=sales.reduce((a,s)=>a+s.total,0),cost=sales.reduce((a,s)=>a+saleFoodcost(s),0),gross=sales.reduce((a,s)=>a+saleGrossProfit(s),0),cash=sales.filter(s=>s.payment==="Cash").reduce((a,s)=>a+s.total,0),pay=sales.filter(s=>s.payment==="Payconiq").reduce((a,s)=>a+s.total,0),food=PRODUCTS.filter(p=>p.cat!=="Dranken").reduce((a,p)=>a+(counts[p.id]||0),0),drinks=PRODUCTS.filter(p=>p.cat==="Dranken").reduce((a,p)=>a+(counts[p.id]||0),0),d=new Date(),expenses=extra.gas+extra.stand+extra.other;return {Datum:dateKey(),Dag:d.toLocaleDateString("nl-BE",{weekday:"short"}),Week:weekNo(d),Maand:d.toLocaleDateString("nl-BE",{month:"long"}),Standplaats:extra.place,Weer:extra.weather,Personeel:extra.staff,Klanten:sales.length,Hamburger:counts["hamburger"]||0,"Angus Beefburger":counts["angus-beefburger"]||0,"Kip Burger XL":counts["kip-burger-xl"]||0,Cheeseburger:counts["cheeseburger"]||0,"Cheeseburger Royale":counts["cheeseburger-royale"]||0,Spekburger:counts["spekburger"]||0,Bicky:counts["bicky-burger"]||0,"Bicky Cheese":counts["bicky-cheese"]||0,Mexicano:counts["broodje-mexicano"]||0,"Mexicano Cheese":counts["broodje-mexicano-cheese"]||0,"Broodje Braadworst":counts["broodje-braadworst"]||0,"Losse Braadworst":counts["braadworst"]||0,"Pulled Pork":counts["pulled-pork"]||0,"Smokey Chicken":counts["smokey-chicken"]||0,"Chicken Tandoori":counts["chicken-tandoori"]||0,"BR.Curry worst":counts["broodje-curryworst"]||0,"Losse Curry Worst":counts["curryworst"]||0,"Extra Kaas ":counts["extra-kaas"]||0,Water:counts["plat-water"]||0,Bruis:counts["bruis-water"]||0,Cola:counts["cola"]||0,"Cola Zero":counts["cola-zero"]||0,Fanta:counts["fanta"]||0,Sprite:counts["sprite"]||0,Jupiler:counts["jupiler"]||0,"Jupiler 0,0":counts["jupiler-00"]||0,"Red Bull":counts["red-bull"]||0,"Ice Tea":counts["ice-tea"]||0,Peach:counts["ice-tea-peach"]||0,"Dr Pepper":counts["dr-pepper"]||0,"Food stuks":food,"Drank stuks":drinks,"Totaal stuks":food+drinks,"Theoretische omzet":total,"Theoretische kost":cost,Brutowinst:gross,Cash:cash,Payconiq:pay,"Werkelijke omzet":cash+pay,Verschil:cash+pay-total,"Gas/Diesel":extra.gas,Standgeld:extra.stand,"Overige kosten":extra.other,"Netto dagresultaat":gross-expenses,Opmerking:extra.note}}
 function openCloseDay(){const s=todaySales();if(!s.length)return toast("Nog geen verkopen vandaag.");const total=s.reduce((a,x)=>a+x.total,0),cost=s.reduce((a,x)=>a+saleFoodcost(x),0),gross=s.reduce((a,x)=>a+saleGrossProfit(x),0);document.getElementById("closeDaySummary").innerHTML=`<div><span>Omzet</span><strong>${euro(total)}</strong></div><div><span>Foodcost</span><strong>${euro(cost)}</strong></div><div><span>Brutowinst</span><strong>${euro(gross)}</strong></div><div><span>Klanten</span><strong>${s.length}</strong></div>`;document.getElementById("syncStatus").hidden=true;document.getElementById("closeDayDialog").showModal()}
-async function sendToPRO(){const st=document.getElementById("syncStatus"),btn=document.getElementById("sendToProBtn");if(!navigator.onLine){st.hidden=false;st.className="sync-status error";st.textContent="Geen internetverbinding.";return}btn.disabled=true;btn.textContent="Bezig…";st.hidden=false;st.className="sync-status";st.textContent="Verzenden…";try{const data=makeProData({place:document.getElementById("closeStandplaats").value.trim(),weather:document.getElementById("closeWeer").value,staff:document.getElementById("closePersoneel").value,gas:nval("closeGas"),stand:nval("closeStandgeld"),other:nval("closeOther"),note:document.getElementById("closeNote").value.trim()});const r=await fetch(PRO_WEBAPP_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({token:PRO_TOKEN,data})});const result=await r.json();if(!result.ok)throw new Error(result.error||"Onbekende fout");st.className="sync-status ok";st.textContent=`Dagstaat bijgewerkt. Rij ${result.row}.`;toast("Snackbaron PRO bijgewerkt.")}catch(e){st.className="sync-status error";st.textContent="Verzenden mislukt: "+e.message}finally{btn.disabled=false;btn.textContent="Verstuur nu"}}
+async function sendToPRO(){
+  const st=document.getElementById("syncStatus");
+  const btn=document.getElementById("sendToProBtn");
+
+  if(!navigator.onLine){
+    st.hidden=false;
+    st.className="sync-status error";
+    st.textContent="Geen internetverbinding.";
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="Bezig…";
+  st.hidden=false;
+  st.className="sync-status";
+  st.textContent="Gegevens worden verzonden…";
+
+  try{
+    const data=makeProData({
+      place:document.getElementById("closeStandplaats").value.trim(),
+      weather:document.getElementById("closeWeer").value,
+      staff:document.getElementById("closePersoneel").value,
+      gas:nval("closeGas"),
+      stand:nval("closeStandgeld"),
+      other:nval("closeOther"),
+      note:document.getElementById("closeNote").value.trim()
+    });
+
+    await fetch(PRO_WEBAPP_URL,{
+      method:"POST",
+      mode:"no-cors",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({token:PRO_TOKEN,data})
+    });
+
+    st.className="sync-status ok";
+    st.textContent="Verzonden naar Snackbaron PRO. Controleer Dagstaat.";
+    toast("Gegevens verzonden.");
+  }catch(e){
+    st.className="sync-status error";
+    st.textContent="Verzenden mislukt. Controleer je internetverbinding en probeer opnieuw.";
+  }finally{
+    btn.disabled=false;
+    btn.textContent="Verstuur nu";
+  }
+}
 
 function exportCSV(){
   const data=[["Bestelnummer","Datum","Tijd","Betaalmethode","Product","Aantal","Prijs","Regeltotaal","Bestellingstotaal","Ontvangen","Wisselgeld"]];
