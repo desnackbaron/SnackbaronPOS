@@ -19,6 +19,34 @@ const dateKey=()=>{
 const getSales=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch{return []}};
 const saveSales=s=>localStorage.setItem(KEY,JSON.stringify(s));
 const todaySales=()=>getSales().filter(s=>s.date===dateKey());
+
+const FOOD_IDS=new Set(PRODUCTS.filter(p=>p.cat!=="Dranken"&&p.cat!=="Extra's").map(p=>p.id));
+function quarterLabel(timestamp){
+  const d=new Date(timestamp);
+  const start=Math.floor(d.getMinutes()/15)*15;
+  const endTotal=d.getHours()*60+start+15;
+  const h1=String(d.getHours()).padStart(2,"0"),m1=String(start).padStart(2,"0");
+  const h2=String(Math.floor(endTotal/60)%24).padStart(2,"0"),m2=String(endTotal%60).padStart(2,"0");
+  return `${h1}:${m1}-${h2}:${m2}`;
+}
+function trafficData(place=""){
+  const blocks={};
+  todaySales().forEach(s=>{
+    const block=quarterLabel(s.timestamp);
+    if(!blocks[block])blocks[block]={Datum:s.date,Standplaats:place,Tijdsblok:block,Klanten:0,"Food stuks":0,"Drank stuks":0,Omzet:0};
+    const b=blocks[block];
+    b.Klanten+=1;
+    b.Omzet+=Number(s.total||0);
+    (s.items||[]).forEach(i=>{
+      const p=PRODUCTS.find(x=>x.id===i.id);
+      if(!p)return;
+      if(p.cat==="Dranken")b["Drank stuks"]+=i.qty;
+      else if(FOOD_IDS.has(p.id))b["Food stuks"]+=i.qty;
+    });
+  });
+  return Object.values(blocks).sort((a,b)=>a.Tijdsblok.localeCompare(b.Tijdsblok));
+}
+
 const nextOrderNo=()=>todaySales().reduce((m,s)=>Math.max(m,s.orderNo||0),0)+1;
 const getHeld=()=>{try{return JSON.parse(localStorage.getItem(HELD_KEY))||[]}catch{return []}};
 const saveHeld=h=>{localStorage.setItem(HELD_KEY,JSON.stringify(h));updateHeldCount();};
@@ -320,54 +348,32 @@ function openCockpit(){
 
 function openTraffic(){
   const sales=todaySales();
-  const hours={};
+  const blocks=trafficData("");
+  const counts=blocks.map(b=>b.Klanten);
+  const maxCount=Math.max(1,...counts);
+  const busiest=blocks.length?[...blocks].sort((a,b)=>b.Klanten-a.Klanten)[0]:null;
+  const quietest=blocks.length?[...blocks].sort((a,b)=>a.Klanten-b.Klanten)[0]:null;
+  const avg=blocks.length?sales.length/blocks.length:0;
 
-  sales.forEach(s=>{
-    const d=new Date(s.timestamp);
-    const hour=d.getHours();
-    hours[hour]=(hours[hour]||0)+1;
-  });
-
-  const startHour=sales.length?Math.min(...sales.map(s=>new Date(s.timestamp).getHours())):10;
-  const endHour=sales.length?Math.max(...sales.map(s=>new Date(s.timestamp).getHours())):18;
-  const maxCount=Math.max(1,...Object.values(hours));
-  const busiestEntry=Object.entries(hours).sort((a,b)=>b[1]-a[1])[0];
-  const quietEntries=Object.entries(hours).sort((a,b)=>a[1]-b[1]);
-  const quietestEntry=quietEntries[0];
-  const avg=sales.length? sales.length / Math.max(1,(endHour-startHour+1)) : 0;
-
-  let rows="";
-  for(let h=startHour;h<=endHour;h++){
-    const count=hours[h]||0;
-    const width=(count/maxCount)*100;
-    rows+=`
-      <div class="traffic-row">
-        <div class="traffic-hour">${String(h).padStart(2,"0")}:00</div>
-        <div class="traffic-bar-wrap">
-          <div class="traffic-bar" style="width:${width}%"></div>
-        </div>
-        <div class="traffic-count">${count} klant${count===1?"":"en"}</div>
-      </div>`;
-  }
-
-  const busiestText=busiestEntry
-    ? `${String(busiestEntry[0]).padStart(2,"0")}:00 · ${busiestEntry[1]} klanten`
-    : "Nog geen gegevens";
-
-  const quietestText=quietestEntry
-    ? `${String(quietestEntry[0]).padStart(2,"0")}:00 · ${quietestEntry[1]} klanten`
-    : "Nog geen gegevens";
+  const rows=blocks.map(b=>`
+    <div class="traffic-row">
+      <div class="traffic-hour">${b.Tijdsblok}</div>
+      <div class="traffic-bar-wrap">
+        <div class="traffic-bar" style="width:${(b.Klanten/maxCount)*100}%"></div>
+      </div>
+      <div class="traffic-count">${b.Klanten} klant${b.Klanten===1?"":"en"} · ${b["Food stuks"]} food · ${euro(b.Omzet)}</div>
+    </div>`).join("");
 
   document.getElementById("trafficBody").innerHTML=`
     <div class="traffic-summary">
-      <div class="traffic-card"><span>Drukste uur</span><strong>${busiestText}</strong></div>
-      <div class="traffic-card"><span>Kalmste uur</span><strong>${quietestText}</strong></div>
-      <div class="traffic-card"><span>Gemiddeld per uur</span><strong>${avg.toFixed(1).replace(".",",")}</strong></div>
+      <div class="traffic-card"><span>Drukste kwartier</span><strong>${busiest?`${busiest.Tijdsblok} · ${busiest.Klanten} klanten`:"Nog geen gegevens"}</strong></div>
+      <div class="traffic-card"><span>Kalmste kwartier</span><strong>${quietest?`${quietest.Tijdsblok} · ${quietest.Klanten} klanten`:"Nog geen gegevens"}</strong></div>
+      <div class="traffic-card"><span>Gemiddeld per actief kwartier</span><strong>${avg.toFixed(1).replace(".",",")}</strong></div>
     </div>
     ${rows || '<div class="empty">Nog geen verkopen vandaag.</div>'}
     <div class="traffic-note">
-      Gebruik dit overzicht na enkele verkoopdagen om rustige momenten te herkennen.
-      Uren zonder verkoop blijven zichtbaar met 0 klanten.
+      De druktemeter gebruikt nu blokken van 15 minuten en bewaart de informatie via de opgeslagen bestellingen.
+      Bij de dagupload wordt de kwartierdata mee in de payload gezet voor Snackbaron PRO.
     </div>`;
   document.getElementById("trafficDialog").showModal();
 }
@@ -397,7 +403,7 @@ function openSummary(){
 
 function nval(id){const v=parseFloat(document.getElementById(id).value||"0");return isNaN(v)?0:v}
 function weekNo(d){const x=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const day=x.getUTCDay()||7;x.setUTCDate(x.getUTCDate()+4-day);const y=new Date(Date.UTC(x.getUTCFullYear(),0,1));return Math.ceil((((x-y)/86400000)+1)/7)}
-function makeProData(extra){const sales=todaySales(),counts={};sales.forEach(s=>(s.items||[]).forEach(i=>counts[i.id]=(counts[i.id]||0)+i.qty));const total=sales.reduce((a,s)=>a+s.total,0),cost=sales.reduce((a,s)=>a+saleFoodcost(s),0),gross=sales.reduce((a,s)=>a+saleGrossProfit(s),0),cash=sales.filter(s=>s.payment==="Cash").reduce((a,s)=>a+s.total,0),pay=sales.filter(s=>s.payment==="Payconiq").reduce((a,s)=>a+s.total,0),food=PRODUCTS.filter(p=>p.cat!=="Dranken").reduce((a,p)=>a+(counts[p.id]||0),0),drinks=PRODUCTS.filter(p=>p.cat==="Dranken").reduce((a,p)=>a+(counts[p.id]||0),0),d=new Date(),expenses=extra.gas+extra.stand+extra.other;return {Datum:dateKey(),Dag:d.toLocaleDateString("nl-BE",{weekday:"short"}),Week:weekNo(d),Maand:d.toLocaleDateString("nl-BE",{month:"long"}),Standplaats:extra.place,Weer:extra.weather,Personeel:extra.staff,Klanten:sales.length,Hamburger:counts["hamburger"]||0,"Angus Beefburger":counts["angus-beefburger"]||0,"Kip Burger XL":counts["kip-burger-xl"]||0,Cheeseburger:counts["cheeseburger"]||0,"Cheeseburger Royale":counts["cheeseburger-royale"]||0,Spekburger:counts["spekburger"]||0,Bicky:counts["bicky-burger"]||0,"Bicky Cheese":counts["bicky-cheese"]||0,Mexicano:counts["broodje-mexicano"]||0,"Mexicano Cheese":counts["broodje-mexicano-cheese"]||0,"Broodje Braadworst":counts["broodje-braadworst"]||0,"Losse Braadworst":counts["braadworst"]||0,"Pulled Pork":counts["pulled-pork"]||0,"Smokey Chicken":counts["smokey-chicken"]||0,"Chicken Tandoori":counts["chicken-tandoori"]||0,"BR.Curry worst":counts["broodje-curryworst"]||0,"Losse Curry Worst":counts["curryworst"]||0,"Extra Kaas ":counts["extra-kaas"]||0,"Extra Spek":counts["extra-spek"]||0,Water:counts["plat-water"]||0,Bruis:counts["bruis-water"]||0,Cola:counts["cola"]||0,"Cola Zero":counts["cola-zero"]||0,Fanta:counts["fanta"]||0,Sprite:counts["sprite"]||0,Jupiler:counts["jupiler"]||0,"Jupiler 0,0":counts["jupiler-00"]||0,"Red Bull":counts["red-bull"]||0,"Ice Tea":counts["ice-tea"]||0,Peach:counts["ice-tea-peach"]||0,"Dr Pepper":counts["dr-pepper"]||0,"Food stuks":food,"Drank stuks":drinks,"Totaal stuks":food+drinks,"Theoretische omzet":total,"Theoretische kost":cost,Brutowinst:gross,Cash:cash,Payconiq:pay,"Werkelijke omzet":cash+pay,Verschil:cash+pay-total,"Gas/Diesel":extra.gas,Standgeld:extra.stand,"Overige kosten":extra.other,"Netto dagresultaat":gross-expenses,Opmerking:extra.note}}
+function makeProData(extra){const sales=todaySales(),counts={};sales.forEach(s=>(s.items||[]).forEach(i=>counts[i.id]=(counts[i.id]||0)+i.qty));const total=sales.reduce((a,s)=>a+s.total,0),cost=sales.reduce((a,s)=>a+saleFoodcost(s),0),gross=sales.reduce((a,s)=>a+saleGrossProfit(s),0),cash=sales.filter(s=>s.payment==="Cash").reduce((a,s)=>a+s.total,0),pay=sales.filter(s=>s.payment==="Payconiq").reduce((a,s)=>a+s.total,0),food=PRODUCTS.filter(p=>p.cat!=="Dranken").reduce((a,p)=>a+(counts[p.id]||0),0),drinks=PRODUCTS.filter(p=>p.cat==="Dranken").reduce((a,p)=>a+(counts[p.id]||0),0),d=new Date(),expenses=extra.gas+extra.stand+extra.other;return {Datum:dateKey(),Dag:d.toLocaleDateString("nl-BE",{weekday:"short"}),Week:weekNo(d),Maand:d.toLocaleDateString("nl-BE",{month:"long"}),Standplaats:extra.place,Weer:extra.weather,Personeel:extra.staff,Klanten:sales.length,Hamburger:counts["hamburger"]||0,"Angus Beefburger":counts["angus-beefburger"]||0,"Kip Burger XL":counts["kip-burger-xl"]||0,Cheeseburger:counts["cheeseburger"]||0,"Cheeseburger Royale":counts["cheeseburger-royale"]||0,Spekburger:counts["spekburger"]||0,Bicky:counts["bicky-burger"]||0,"Bicky Cheese":counts["bicky-cheese"]||0,Mexicano:counts["broodje-mexicano"]||0,"Mexicano Cheese":counts["broodje-mexicano-cheese"]||0,"Broodje Braadworst":counts["broodje-braadworst"]||0,"Losse Braadworst":counts["braadworst"]||0,"Pulled Pork":counts["pulled-pork"]||0,"Smokey Chicken":counts["smokey-chicken"]||0,"Chicken Tandoori":counts["chicken-tandoori"]||0,"BR.Curry worst":counts["broodje-curryworst"]||0,"Losse Curry Worst":counts["curryworst"]||0,"Extra Kaas ":counts["extra-kaas"]||0,"Extra Spek":counts["extra-spek"]||0,Water:counts["plat-water"]||0,Bruis:counts["bruis-water"]||0,Cola:counts["cola"]||0,"Cola Zero":counts["cola-zero"]||0,Fanta:counts["fanta"]||0,Sprite:counts["sprite"]||0,Jupiler:counts["jupiler"]||0,"Jupiler 0,0":counts["jupiler-00"]||0,"Red Bull":counts["red-bull"]||0,"Ice Tea":counts["ice-tea"]||0,Peach:counts["ice-tea-peach"]||0,"Dr Pepper":counts["dr-pepper"]||0,"Food stuks":food,"Drank stuks":drinks,"Totaal stuks":food+drinks,"Theoretische omzet":total,"Theoretische kost":cost,Brutowinst:gross,Cash:cash,Payconiq:pay,"Werkelijke omzet":cash+pay,Verschil:cash+pay-total,"Gas/Diesel":extra.gas,Standgeld:extra.stand,"Overige kosten":extra.other,"Netto dagresultaat":gross-expenses,Opmerking:extra.note,Druktemeter:trafficData(extra.place)}}
 function openCloseDay(){const s=todaySales();if(!s.length)return toast("Nog geen verkopen vandaag.");const total=s.reduce((a,x)=>a+x.total,0),cost=s.reduce((a,x)=>a+saleFoodcost(x),0),gross=s.reduce((a,x)=>a+saleGrossProfit(x),0);document.getElementById("closeDaySummary").innerHTML=`<div><span>Omzet</span><strong>${euro(total)}</strong></div><div><span>Foodcost</span><strong>${euro(cost)}</strong></div><div><span>Brutowinst</span><strong>${euro(gross)}</strong></div><div><span>Klanten</span><strong>${s.length}</strong></div>`;document.getElementById("syncStatus").hidden=true;document.getElementById("closeDayDialog").showModal()}
 async function sendToPRO(){
   const st=document.getElementById("syncStatus");

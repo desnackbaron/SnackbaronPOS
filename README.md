@@ -1,15 +1,11 @@
-# Snackbaron POS v4.4 – Extra spek kostprijs
+# Snackbaron POS v4.5 – Druktemeter
 
-Aangepast:
-- Extra spek bestaat uit 2 plakken
-- Kostprijs per plak: €0,282
-- Totale foodcost Extra spek: €0,564
-- Verkoopprijs: €1,00
-- Brutowinst per verkoop: €0,436
+Nieuw:
+- Druktemeting per 15 minuten.
+- Per tijdsblok: klanten, food stuks, drank stuks en omzet.
+- De gegevens komen uit de reeds lokaal opgeslagen bestellingen, dus er is geen extra handeling tijdens de service.
+- De bestaande knop Druktemeter toont nu kwartieren in plaats van uren.
+- Bij 'Verstuur naar Snackbaron PRO' wordt een veld `Druktemeter` met alle kwartierblokken meegestuurd.
 
-Extra spek telt nu correct mee in:
-- foodcost per bestelling
-- brutowinst per bestelling
-- dagoverzicht
-- cockpit
-- export naar Snackbaron PRO
+Belangrijk:
+De huidige Apps Script-koppeling verwerkt alleen de gewone Dagstaat-velden. De POS stuurt de druktedata nu al mee, maar Apps Script moet nog één keer worden uitgebreid om deze regels in een apart tabblad `Druktemeter` te schrijven.
