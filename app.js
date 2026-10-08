@@ -54,13 +54,14 @@ const saveHeld=h=>{localStorage.setItem(HELD_KEY,JSON.stringify(h));updateHeldCo
 function updateHeldCount(){document.getElementById("heldCount").textContent=getHeld().length;}
 
 
-function categories(){return ["Alles",...new Set(PRODUCTS.map(p=>p.cat))]}
+function categories(){return ["Alles",...new Set(PRODUCTS.map(p=>p.cat)),"KLOKFEST"]}
 function renderTabs(){
   document.getElementById("tabs").innerHTML=categories().map(c=>`<button class="${c===activeCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
   document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;renderTabs();renderProducts();});
 }
 function renderProducts(){
-  const list=activeCategory==="Alles"?PRODUCTS:PRODUCTS.filter(p=>p.cat===activeCategory);
+  const klokfestIds=["klokwurst","pulled-pork","hamburger","cheeseburger","cheeseburger-royale","broodje-mexicano","broodje-mexicano-cheese","broodje-curryworst","curryworst","extra-kaas"];
+const list=activeCategory==="Alles"?PRODUCTS:activeCategory==="KLOKFEST"?PRODUCTS.filter(p=>klokfestIds.includes(p.id)):PRODUCTS.filter(p=>p.cat===activeCategory);
   document.getElementById("productGrid").innerHTML=list.map(p=>`
     <button class="product ${p.image ? "has-image" : ""}" data-id="${p.id}" title="Kost ${euro(p.cost)} · Brutowinst ${euro(p.price-p.cost)} · Doelvoorraad ${p.targetStock}">
       ${p.image ? `<img class="product-image" src="${p.image}" alt="${p.name}">` : ""}
