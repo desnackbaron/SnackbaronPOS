@@ -1,4 +1,4 @@
-const CACHE_NAME = "snackbaron-pos-v4-7-kloktoberfest";
+const CACHE_NAME = "snackbaron-pos-v4-8-klokfest-menu";
 const APP_SHELL = [
   "./",
   "./index.html",
