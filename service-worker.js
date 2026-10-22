@@ -1,4 +1,4 @@
-const CACHE_NAME = "snackbaron-pos-v4-9-hotdog";
+const CACHE_NAME = "snackbaron-pos-v4-10-hotdog-pro";
 const APP_SHELL = [
   "./",
   "./index.html",
