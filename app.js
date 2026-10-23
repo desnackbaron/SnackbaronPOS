@@ -55,7 +55,7 @@ const saveHeld=h=>{localStorage.setItem(HELD_KEY,JSON.stringify(h));updateHeldCo
 function updateHeldCount(){document.getElementById("heldCount").textContent=getHeld().length;}
 
 
-function categories(){return ["Alles",...new Set(PRODUCTS.map(p=>p.cat)),"KLOKFEST","STREETFOOD"]}
+function categories(){return ["Alles",...new Set(PRODUCTS.map(p=>p.cat).filter(c=>c && c!=="undefined")),"KLOKFEST","STREETFOOD"]}
 function renderTabs(){
   document.getElementById("tabs").innerHTML=categories().map(c=>`<button class="${c===activeCategory?"active":""}" data-cat="${c}">${c}</button>`).join("");
   document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;renderTabs();renderProducts();});
