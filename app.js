@@ -77,8 +77,9 @@ function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id]
 function cartRows(){
   return Object.entries(cart).map(([id,qty])=>{
     const p=PRODUCTS.find(x=>x.id===id);
+    if(!p)return null;
     return {id:p.id,name:p.name,price:p.price,qty,total:p.price*qty};
-  });
+  }).filter(Boolean);
 }
 function cartTotal(){return cartRows().reduce((s,r)=>s+r.total,0)}
 function itemCost(item){
